@@ -1,0 +1,4482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROFETA Express — v9</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════ BASE ═══════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dark:#8B6914;
+  --crimson:#8B1A1A;--parchment:#F5ECD7;
+  --bg-dark:#0A0805;--bg-felt:#0E1A14;
+  --bg-card:#1A140A;--border:rgba(201,168,76,0.25);
+  --text-main:#EDE0C4;--text-sub:#C4A96E;--text-muted:#8A7350;
+  --prophet:#8B6914;--event:#1A3A6A;
+  --blessing:#1E6B2E;--obstacle:#7A1818;
+  --era-patriarcal-c:#C27A3A;--era-patriarcal-bg:#5C3818;
+  --era-exodo-c:#D4A93A;--era-exodo-bg:#6A5218;
+  --era-cautiverio-c:#5FA048;--era-cautiverio-bg:#264520;
+  --era-cristo-c:#4A82D8;--era-cristo-bg:#1E3968;
+  --era-fin-c:#A24ED8;--era-fin-bg:#4A1E68;
+  --info:#4A90E2;--info-bg:rgba(74,144,226,0.15);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Lora',Georgia,serif;
+  background:radial-gradient(ellipse at center,#1a1208 0%,#0a0805 100%);
+  color:var(--text-main);min-height:100vh;
+  background-attachment:fixed;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+/* ═══════════════ HEADER ═══════════════ */
+header{
+  background:rgba(10,8,5,0.95);
+  border-bottom:1px solid var(--border);
+  padding:0.45rem 1rem;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:nowrap;gap:0.5rem;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(10px);
+  min-height:0;
+}
+.brand{font-family:'Cinzel Decorative',serif;font-size:0.9rem;font-weight:700;color:var(--gold);letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;flex-shrink:0}
+.brand span{font-family:'Cinzel',serif;font-size:0.6rem;color:var(--gold-dark);letter-spacing:0.3em}
+.header-actions{display:flex;gap:0.35rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;min-width:0}
+.difficulty-switch{
+  display:inline-flex;align-items:center;gap:0.35rem;
+  padding:0.2rem 0.5rem 0.2rem 0.6rem;
+  border:1px solid var(--border);border-radius:4px;
+  background:rgba(0,0,0,0.3);
+}
+
+/* Audio controls */
+.audio-controls{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  padding:0.2rem 0.5rem 0.2rem 0.6rem;
+  border:1px solid var(--border);border-radius:4px;
+  background:rgba(0,0,0,0.3);
+}
+.audio-label{
+  font-family:'Cinzel',serif;font-size:0.62rem;
+  color:var(--text-muted);letter-spacing:0.15em;
+  text-transform:uppercase;
+}
+.audio-icon-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:1rem;line-height:1;
+  padding:2px 4px;border-radius:3px;
+  transition:opacity 0.2s;
+  color:var(--text-main);
+}
+.audio-icon-btn:hover{opacity:0.7}
+.audio-icon-btn.muted{opacity:0.35;text-decoration:line-through}
+.audio-vol-slider{
+  -webkit-appearance:none;appearance:none;
+  width:70px;height:3px;
+  background:linear-gradient(to right, var(--gold) 0%, var(--gold) 40%, rgba(201,168,76,0.2) 40%);
+  border-radius:2px;cursor:pointer;outline:none;border:none;
+}
+.audio-vol-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:12px;height:12px;
+  background:var(--gold);border-radius:50%;
+  cursor:pointer;transition:transform 0.15s;
+}
+.audio-vol-slider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.diff-label{
+  font-family:'Cinzel',serif;font-size:0.62rem;
+  color:var(--text-muted);letter-spacing:0.15em;
+  text-transform:uppercase;
+}
+.diff-btn{
+  font-family:'Cinzel',serif;font-size:0.6rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  background:transparent;color:var(--text-muted);
+  border:1px solid transparent;
+  padding:0.2rem 0.45rem;border-radius:3px;
+  cursor:pointer;transition:all 0.2s;
+}
+.diff-btn:hover{color:var(--gold-light);border-color:var(--gold-dark)}
+.diff-btn.active{background:var(--gold-dark);color:var(--parchment);border-color:var(--gold-dark)}
+
+/* Committed cards in prophecy area - slightly dimmed with badge */
+.prophecy-zone .game-card{
+  position:relative;
+}
+.prophecy-zone .game-card::after{
+  content:'◆';
+  position:absolute;top:2px;right:2px;z-index:5;
+  background:rgba(0,0,0,0.7);
+  color:var(--gold);
+  font-size:0.55rem;
+  padding:1px 3px;border-radius:2px;
+  border:1px solid var(--gold-dark);
+  line-height:1;
+}
+.btn{
+  font-family:'Cinzel',serif;font-size:0.68rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  background:transparent;color:var(--gold);
+  border:1px solid var(--gold-dark);
+  padding:0.45rem 0.9rem;border-radius:4px;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn:hover{background:rgba(201,168,76,0.1);border-color:var(--gold)}
+.btn-primary{background:var(--gold-dark);color:var(--parchment)}
+.btn-primary:hover{background:var(--gold);color:var(--bg-dark)}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.game-container{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  height:calc(100dvh - 46px);
+  height:calc(100vh - 46px);
+  position:relative;z-index:1;
+}
+.table-area{
+  display:grid;
+  grid-template-rows:auto 1fr auto auto;
+  padding:0.5rem;
+  background:radial-gradient(ellipse at center,rgba(20,40,32,0.4) 0%,transparent 70%),linear-gradient(180deg,#0c1810 0%,#0a1508 50%,#0c1810 100%);
+  overflow:hidden;
+  gap:0.4rem;
+  position:relative;
+}
+.table-area::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23f)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+
+/* ═══════════════ ZONES ═══════════════ */
+.zone{
+  padding:0.35rem 0.6rem;
+  border-radius:6px;
+  position:relative;z-index:1;
+}
+.opponent-zone{background:rgba(139,26,26,0.08);border:1px solid rgba(139,26,26,0.2)}
+.player-zone{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2)}
+
+.zone-row{display:flex;align-items:center;gap:0.5rem}
+.zone-label{
+  font-family:'Cinzel',serif;font-size:0.64rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text-muted);white-space:nowrap;
+}
+.zone-label strong{color:var(--gold);letter-spacing:0.1em}
+.opponent-zone .zone-label strong{color:#D07070}
+
+/* opponent hand - face-down cards */
+.opp-hand{
+  display:flex;gap:4px;justify-content:center;flex-wrap:nowrap;
+  flex:1;min-height:70px;
+}
+.opp-card-back{
+  width:50px;height:70px;
+  border-radius:5px;
+  background:linear-gradient(135deg,#3A1818 0%,#6A1818 50%,#3A1818 100%);
+  border:1.5px solid var(--gold-dark);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold-dark);font-family:'Cinzel Decorative',serif;
+  font-size:1.3rem;
+  box-shadow:0 2px 4px rgba(0,0,0,0.4);
+  flex-shrink:0;
+}
+.opp-card-visible{
+  width:50px;height:70px;
+  border-radius:5px;
+  border:1.5px solid var(--info);
+  box-shadow:0 0 8px rgba(74,144,226,0.5);
+  flex-shrink:0;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  background:var(--bg-card);
+  font-family:'Source Sans 3',sans-serif;
+  position:relative;
+}
+.opp-card-visible .mini-era-band{
+  height:10px;font-size:0.44rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:0.05em;
+}
+.opp-card-visible .mini-icon{flex:1;display:flex;align-items:center;justify-content:center;font-size:1rem;opacity:0.75}
+.opp-card-visible .mini-name{
+  font-size:0.44rem;text-align:center;padding:1px 2px;
+  background:rgba(0,0,0,0.5);line-height:1.1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* ═══════════════ PROPHECY AREA ═══════════════ */
+.prophecy-zone{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0.4rem 0.6rem;
+  border-radius:5px;
+  border:1px dashed rgba(201,168,76,0.15);
+  background:rgba(0,0,0,0.25);
+  min-height:110px;
+  flex:1;
+}
+.prophecy-zone.has-cards{border-style:solid;border-color:rgba(201,168,76,0.4)}
+.prophecy-zone.highlight{animation:prophecyGlow 1.2s ease-out}
+.prophecy-slots{display:flex;gap:5px;flex:1}
+.prophecy-slot-empty{
+  width:72px;height:100px;
+  border:1px dashed rgba(201,168,76,0.18);
+  border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(201,168,76,0.3);
+  font-family:'Cinzel',serif;font-size:0.85rem;
+  flex-shrink:0;
+}
+.prophecy-era-label{
+  display:flex;flex-direction:column;
+  font-family:'Cinzel',serif;
+  min-width:86px;
+  padding:0.35rem 0.55rem;
+  border-radius:4px;
+  border-left:3px solid transparent;
+  background:rgba(0,0,0,0.3);
+}
+.prophecy-era-label.empty{opacity:0.4}
+.prophecy-era-label .era-title{
+  font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;
+  text-transform:uppercase;font-weight:700;
+}
+.prophecy-era-label .era-desc{
+  font-size:0.56rem;color:var(--text-muted);
+  letter-spacing:0.05em;margin-top:2px;line-height:1.3;
+  font-family:'Source Sans 3',sans-serif;
+}
+.prophecy-era-label .era-period{
+  font-size:0.54rem;color:var(--text-sub);
+  font-style:italic;margin-top:2px;
+  font-family:'Lora',serif;
+}
+@keyframes prophecyGlow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 30px 8px rgba(201,168,76,0.6)}}
+
+/* ═══════════════ CENTER (DECK + MARKET) ═══════════════ */
+.center-zone{
+  display:flex;align-items:center;justify-content:center;
+  gap:1.5rem;padding:0.3rem;position:relative;z-index:1;flex-wrap:wrap;
+}
+.deck-zone,.market-zone{display:flex;flex-direction:column;align-items:center;gap:0.25rem}
+.zone-title{
+  font-family:'Cinzel',serif;font-size:0.64rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--gold-dark);
+}
+.deck-stack{
+  width:98px;height:136px;
+  border-radius:6px;
+  background:
+    linear-gradient(135deg,rgba(201,168,76,0.15) 0%,transparent 50%,rgba(201,168,76,0.1) 100%),
+    linear-gradient(135deg,#2A1A08 0%,#3A2510 50%,#2A1A08 100%);
+  border:2px solid var(--gold-dark);
+  box-shadow:0 2px 0 #1a1005,0 4px 0 #2a1a08,0 6px 0 #1a1005,0 10px 20px rgba(0,0,0,0.6);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold);font-family:'Cinzel Decorative',serif;font-size:2.2rem;
+  position:relative;
+}
+.deck-stack.small{width:86px;height:120px;font-size:1.7rem}
+.deck-stack.discard{
+  background:linear-gradient(135deg,#1a1a1a 0%,#2a2a2a 50%,#1a1a1a 100%);
+  border-color:var(--text-muted);color:var(--text-muted);
+}
+.deck-count{
+  position:absolute;bottom:-20px;
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  color:var(--text-muted);letter-spacing:0.1em;
+}
+.market-cards{display:flex;gap:8px;min-height:160px;align-items:center;justify-content:center}
+
+/* ═══════════════ GAME CARD (LARGE — reads all content) ═══════════════ */
+.game-card{
+  width:126px;height:176px;
+  border-radius:8px;overflow:hidden;
+  font-family:'Source Sans 3',sans-serif;
+  box-shadow:0 4px 14px rgba(0,0,0,0.6);
+  cursor:pointer;
+  display:flex;flex-direction:column;
+  position:relative;
+  transition:transform 0.25s,box-shadow 0.25s;
+  flex-shrink:0;user-select:none;
+  background:var(--bg-card);
+}
+.game-card:hover{transform:translateY(-12px) scale(1.04);box-shadow:0 14px 30px rgba(0,0,0,0.8);z-index:10}
+.game-card.selected{transform:translateY(-14px);box-shadow:0 0 0 3px var(--gold),0 14px 30px rgba(201,168,76,0.5);z-index:11}
+.game-card.zoomed{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(2.4);
+  z-index:600;
+  box-shadow:0 0 60px rgba(201,168,76,0.5),0 20px 50px rgba(0,0,0,0.9);
+  cursor:default;
+}
+.game-card.zoomed:hover{transform:translate(-50%,-50%) scale(2.4)}
+.game-card.disabled{opacity:0.55;cursor:not-allowed;filter:grayscale(0.25)}
+.game-card.disabled:hover{transform:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
+.game-card.highlight-swap{
+  animation:pulseSwap 1.4s ease-in-out infinite;
+}
+@keyframes pulseSwap{
+  0%,100%{box-shadow:0 4px 14px rgba(0,0,0,0.6),0 0 0 2px rgba(201,168,76,0.3)}
+  50%{box-shadow:0 4px 14px rgba(0,0,0,0.6),0 0 0 3px var(--gold),0 0 18px rgba(201,168,76,0.5)}
+}
+
+/* ERA COLOR BAND on top */
+.card-era-band{
+  height:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:0.62rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.95);
+  text-shadow:0 1px 2px rgba(0,0,0,0.6);
+  flex-shrink:0;
+  position:relative;
+}
+.era-patriarcal{background:var(--era-patriarcal-c)}
+.era-exodo{background:var(--era-exodo-c)}
+.era-cautiverio{background:var(--era-cautiverio-c)}
+.era-cristo{background:var(--era-cristo-c)}
+.era-fin{background:var(--era-fin-c)}
+.era-none{background:#333;color:#b9b9b9}
+.card-blessing .card-era-band{background:var(--blessing)}
+.card-obstacle .card-era-band{background:var(--obstacle)}
+
+/* TOP BAR (type + souls) */
+.gc-top{
+  padding:3px 6px;display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;background:rgba(0,0,0,0.4);
+}
+.gc-type{font-size:0.56rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.9)}
+.gc-souls{
+  font-family:'Cinzel',serif;font-size:0.72rem;color:var(--gold-light);font-weight:700;
+  background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:3px;
+  border:1px solid var(--gold-dark);
+}
+.card-blessing .gc-souls{color:#9CD9A8;border-color:rgba(156,217,168,0.4)}
+.card-obstacle .gc-souls{color:#E88A8A;border-color:rgba(232,138,138,0.4)}
+
+/* ART ZONE */
+.gc-art{
+  flex-shrink:0;
+  height:56px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;opacity:0.85;
+  position:relative;
+}
+.gc-art::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at center,transparent 40%,rgba(0,0,0,0.4) 100%);
+  pointer-events:none;
+}
+.card-prophet.card-era-patriarcal .gc-art{background:var(--era-patriarcal-bg)}
+.card-prophet.card-era-exodo .gc-art{background:var(--era-exodo-bg)}
+.card-prophet.card-era-cautiverio .gc-art{background:var(--era-cautiverio-bg)}
+.card-prophet.card-era-cristo .gc-art{background:var(--era-cristo-bg)}
+.card-prophet.card-era-fin .gc-art{background:var(--era-fin-bg)}
+.card-event.card-era-patriarcal .gc-art{background:linear-gradient(135deg,var(--era-patriarcal-bg),#3d2210)}
+.card-event.card-era-exodo .gc-art{background:linear-gradient(135deg,var(--era-exodo-bg),#4a3810)}
+.card-event.card-era-cautiverio .gc-art{background:linear-gradient(135deg,var(--era-cautiverio-bg),#1a3018)}
+.card-event.card-era-cristo .gc-art{background:linear-gradient(135deg,var(--era-cristo-bg),#122848)}
+.card-event.card-era-fin .gc-art{background:linear-gradient(135deg,var(--era-fin-bg),#34144a)}
+.card-blessing .gc-art{background:linear-gradient(135deg,#1a3a22,#0d2614);color:#9CD9A8}
+.card-obstacle .gc-art{background:linear-gradient(135deg,#4a1010,#2d0808);color:#E88A8A}
+
+/* NAME strip */
+.gc-name-strip{
+  padding:4px 6px;
+  background:rgba(0,0,0,0.75);
+  flex-shrink:0;
+  border-top:1px solid rgba(201,168,76,0.2);
+  border-bottom:1px solid rgba(201,168,76,0.2);
+}
+.gc-name{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:0.76rem;line-height:1.1;color:var(--gold-light);
+  text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.gc-ref{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:0.52rem;color:var(--text-muted);
+  text-align:center;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.card-event .gc-name{color:#A8C4E8}
+.card-blessing .gc-name{color:#9CD9A8}
+.card-obstacle .gc-name{color:#E88A8A}
+
+/* DESCRIPTION BODY — on card face now */
+.gc-body{
+  flex:1;
+  padding:4px 6px;
+  background:linear-gradient(180deg,rgba(20,16,10,0.95) 0%,rgba(10,8,5,0.98) 100%);
+  font-size:0.56rem;line-height:1.25;color:var(--text-main);
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:5;
+  -webkit-box-orient:vertical;
+  text-overflow:ellipsis;
+}
+.gc-body strong{color:var(--gold-light)}
+
+/* small card variant (for prophecy area) */
+.game-card.small{width:72px;height:100px}
+.game-card.small .card-era-band{height:12px;font-size:0.44rem}
+.game-card.small .gc-top{padding:1px 3px}
+.game-card.small .gc-type{font-size:0.42rem}
+.game-card.small .gc-souls{font-size:0.5rem;padding:0 3px}
+.game-card.small .gc-art{height:28px;font-size:1.1rem}
+.game-card.small .gc-name-strip{padding:2px 3px}
+.game-card.small .gc-name{font-size:0.48rem}
+.game-card.small .gc-ref{display:none}
+.game-card.small .gc-body{font-size:0.4rem;-webkit-line-clamp:2;padding:2px 3px}
+
+/* ═══════════════ PLAYER HAND ═══════════════ */
+.player-hand-fan{
+  display:flex;justify-content:center;align-items:flex-end;
+  min-height:215px;padding:8px 4px;
+  gap:8px;
+  position:relative;
+  flex:1;
+}
+
+/* ═══════════════ ACTIONS BAR ═══════════════ */
+.actions-bar{
+  display:flex;gap:0.35rem;justify-content:center;align-items:center;
+  padding:0.35rem 0.5rem;
+  background:rgba(0,0,0,0.4);
+  border-radius:5px;
+  flex-wrap:wrap;
+}
+.action-btn{
+  font-family:'Cinzel',serif;font-size:0.62rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  background:rgba(201,168,76,0.1);color:var(--gold);
+  border:1px solid var(--gold-dark);
+  padding:0.32rem 0.65rem;border-radius:4px;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.action-btn:hover:not(:disabled){background:rgba(201,168,76,0.25);border-color:var(--gold)}
+.action-btn:disabled{opacity:0.35;cursor:not-allowed}
+.action-btn.primary{background:var(--gold-dark);color:var(--parchment)}
+.action-btn.primary:hover:not(:disabled){background:var(--gold);color:var(--bg-dark)}
+.turn-indicator{
+  font-family:'Cinzel',serif;font-size:0.7rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);padding:0.4rem 1rem;
+  border-left:2px solid var(--gold-dark);border-right:2px solid var(--gold-dark);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.turn-indicator.opp{color:#D07070;border-color:rgba(208,112,112,0.5)}
+.timer-display{
+  font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;
+  min-width:26px;text-align:center;
+  transition:color 0.3s;
+}
+.timer-display.urgent{
+  color:#FF4444;
+  animation:timerPulse 0.5s ease-in-out infinite;
+}
+@keyframes timerPulse{
+  0%,100%{transform:scale(1);text-shadow:0 0 0 transparent}
+  50%{transform:scale(1.25);text-shadow:0 0 8px rgba(255,68,68,0.8)}
+}
+
+/* ═══════════════ SIDEBAR ═══════════════ */
+.sidebar{
+  background:rgba(10,8,5,0.88);
+  border-left:1px solid var(--border);
+  padding:0.8rem 0.9rem;
+  overflow-y:auto;
+  height:calc(100dvh - 46px);
+  height:calc(100vh - 46px);
+}
+.sidebar h3{
+  font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:0.5rem;padding-bottom:0.35rem;
+  border-bottom:1px solid var(--border);
+}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:0.8rem}
+.score-card{
+  background:rgba(0,0,0,0.4);border:1px solid var(--border);
+  border-radius:5px;padding:0.55rem 0.4rem;text-align:center;
+}
+.score-card.player{border-color:rgba(201,168,76,0.4)}
+.score-card.opp{border-color:rgba(208,112,112,0.4)}
+.score-name{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase}
+.score-card.player .score-name{color:var(--gold)}
+.score-card.opp .score-name{color:#D07070}
+.score-stats{display:flex;justify-content:space-around;margin-top:0.3rem;font-size:0.6rem;color:var(--text-muted)}
+.score-num{font-family:'Cinzel',serif;font-size:1rem;display:block;color:var(--text-main)}
+
+.log-container{
+  background:rgba(0,0,0,0.5);border:1px solid var(--border);
+  border-radius:5px;padding:0.45rem;
+  height:220px;overflow-y:auto;
+  font-size:0.68rem;line-height:1.5;
+  font-family:'Source Sans 3',sans-serif;
+}
+.log-container::-webkit-scrollbar{width:4px}
+.log-container::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:2px}
+.log-entry{
+  padding:2px 4px;
+  border-bottom:1px solid rgba(201,168,76,0.08);
+  color:var(--text-main);
+  opacity:0;animation:fadeIn 0.4s forwards;
+}
+@keyframes fadeIn{to{opacity:1}}
+.log-entry.player{border-left:2px solid var(--gold);padding-left:5px}
+.log-entry.opp{border-left:2px solid #D07070;padding-left:5px}
+.log-entry.system{color:var(--text-muted);font-style:italic}
+.log-entry.event{color:var(--gold-light);font-weight:600}
+.log-time{color:var(--text-muted);font-size:0.55rem;margin-right:3px}
+
+.rules-box{
+  background:rgba(0,0,0,0.3);border:1px solid var(--border);
+  border-radius:5px;padding:0.55rem 0.7rem;
+  font-size:0.7rem;line-height:1.55;color:var(--text-main);
+  margin-top:0.7rem;
+}
+.rules-box strong{color:var(--gold)}
+.era-item{display:flex;align-items:flex-start;gap:6px;padding:3px 0;font-size:0.65rem;line-height:1.4}
+.era-dot{width:12px;height:12px;border-radius:2px;flex-shrink:0;margin-top:2px}
+.era-dot.era-patriarcal{background:var(--era-patriarcal-c)}
+.era-dot.era-exodo{background:var(--era-exodo-c)}
+.era-dot.era-cautiverio{background:var(--era-cautiverio-c)}
+.era-dot.era-cristo{background:var(--era-cristo-c)}
+.era-dot.era-fin{background:var(--era-fin-c)}
+.era-item strong{color:var(--gold-light)}
+.era-item .era-period{color:var(--text-muted);font-size:0.58rem;display:block;font-style:italic}
+
+/* ═══════════════ START OVERLAY ═══════════════ */
+.start-overlay{
+  position:absolute;inset:0;z-index:50;
+  background:radial-gradient(ellipse at center,rgba(10,20,15,0.4) 0%,rgba(5,8,5,0.85) 80%);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:2rem;
+  backdrop-filter:blur(2px);
+  animation:fadeIn 0.6s forwards;
+}
+.start-overlay.hiding{animation:fadeOut 0.5s forwards}
+@keyframes fadeOut{to{opacity:0;pointer-events:none}}
+.start-deck-big{
+  width:180px;height:252px;
+  border-radius:10px;
+  background:
+    repeating-linear-gradient(135deg,rgba(201,168,76,0.08) 0 2px,transparent 2px 6px),
+    linear-gradient(135deg,#2A1A08 0%,#3A2510 50%,#2A1A08 100%);
+  border:3px solid var(--gold);
+  box-shadow:
+    0 2px 0 #1a1005,0 4px 0 #2a1a08,0 6px 0 #1a1005,0 8px 0 #2a1a08,0 10px 0 #1a1005,
+    0 20px 50px rgba(0,0,0,0.8),
+    0 0 50px rgba(201,168,76,0.25);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0.6rem;
+  color:var(--gold);
+  animation:deckFloat 3s ease-in-out infinite;
+  position:relative;
+}
+.start-deck-big::before{
+  content:'';position:absolute;inset:-8px;
+  border:1px solid rgba(201,168,76,0.15);border-radius:14px;
+  pointer-events:none;
+}
+@keyframes deckFloat{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-8px) rotate(1deg)}
+}
+.start-deck-big .deck-symbol{font-family:'Cinzel Decorative',serif;font-size:4rem;line-height:1}
+.start-deck-big .deck-title{
+  font-family:'Cinzel',serif;font-size:0.82rem;
+  letter-spacing:0.3em;color:var(--gold-light);
+  text-align:center;
+}
+.start-deck-big .deck-sub{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:0.65rem;color:var(--text-muted);
+  text-align:center;padding:0 1rem;line-height:1.4;
+}
+.start-btn{
+  font-family:'Cinzel Decorative',serif;
+  font-size:1.1rem;letter-spacing:0.2em;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%);
+  color:var(--bg-dark);
+  border:2px solid var(--gold-light);
+  padding:1rem 2.5rem;
+  border-radius:6px;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(201,168,76,0.4),0 0 40px rgba(201,168,76,0.25);
+  transition:all 0.2s;
+  text-transform:uppercase;
+  font-weight:700;
+  animation:btnPulse 2s ease-in-out infinite;
+}
+.start-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 30px rgba(201,168,76,0.55),0 0 50px rgba(201,168,76,0.4);
+}
+@keyframes btnPulse{
+  0%,100%{box-shadow:0 8px 24px rgba(201,168,76,0.4),0 0 40px rgba(201,168,76,0.25)}
+  50%{box-shadow:0 8px 24px rgba(201,168,76,0.4),0 0 60px rgba(201,168,76,0.55)}
+}
+.start-tagline{
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;letter-spacing:0.25em;
+  color:var(--text-muted);text-transform:uppercase;
+  max-width:480px;text-align:center;line-height:1.7;
+}
+
+/* Deal animation — flying card */
+.fly-card{
+  position:absolute;
+  z-index:40;
+  pointer-events:none;
+  transition:transform 0.5s cubic-bezier(.5,0,.2,1),opacity 0.5s;
+}
+
+/* ═══════════════ CARD ZOOM OVERLAY ═══════════════ */
+.zoom-backdrop{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  backdrop-filter:blur(3px);
+  animation:fadeIn 0.2s forwards;
+}
+.zoom-backdrop.visible{display:block}
+
+/* action menu that appears below the zoomed card */
+.zoom-actions{
+  position:fixed;left:50%;top:calc(50% + 230px);
+  transform:translateX(-50%);
+  z-index:610;
+  display:none;
+  gap:0.5rem;flex-wrap:wrap;justify-content:center;
+  max-width:560px;
+  opacity:0;
+  transition:opacity 0.3s 0.2s;
+}
+.zoom-actions.visible{display:flex;opacity:1}
+
+/* ═══════════════ OBSTACLE ALERT ═══════════════ */
+.obstacle-alert{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0.8);
+  background:linear-gradient(135deg,#1a2d4a 0%,#0f1d33 100%);
+  border:2px solid var(--info);
+  border-radius:10px;
+  padding:1.5rem 2rem;
+  max-width:420px;
+  box-shadow:0 0 40px rgba(74,144,226,0.5),0 10px 40px rgba(0,0,0,0.8);
+  z-index:800;opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+  text-align:center;
+}
+.obstacle-alert.visible{opacity:1;animation:popIn 2.8s forwards}
+@keyframes popIn{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.7)}
+  10%,85%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(0.95)}
+}
+.obstacle-alert .oa-title{
+  font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;
+  color:var(--info);letter-spacing:0.25em;text-transform:uppercase;
+  margin-bottom:0.4rem;
+}
+.obstacle-alert .oa-name{
+  font-family:'Cinzel Decorative',serif;font-size:1.4rem;
+  color:#D07070;margin-bottom:0.5rem;
+}
+.obstacle-alert .oa-effect{
+  font-size:0.88rem;color:var(--text-main);line-height:1.5;
+  font-family:'Lora',serif;font-style:italic;
+}
+
+/* Floating msg */
+.floating-msg{
+  position:fixed;left:50%;top:30%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.9);border:1.5px solid var(--gold);
+  padding:0.8rem 1.6rem;border-radius:6px;
+  font-family:'Cinzel',serif;font-size:0.85rem;
+  color:var(--gold-light);letter-spacing:0.12em;text-transform:uppercase;
+  z-index:700;box-shadow:0 0 30px rgba(201,168,76,0.4);
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.floating-msg.visible{opacity:1;animation:floatMsg 1.8s ease-out}
+@keyframes floatMsg{
+  0%{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.8)}
+  20%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  80%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-20px) scale(0.95)}
+}
+
+/* ═══════════════ PEEK-PICK MODAL ═══════════════ */
+.peek-backdrop{
+  position:fixed;inset:0;z-index:900;
+  background:rgba(0,0,0,0.85);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);padding:1.5rem;
+}
+.peek-backdrop.visible{display:flex}
+.peek-modal{
+  background:linear-gradient(135deg,#1A140A 0%,#0F0C07 100%);
+  border:2px solid var(--gold);border-radius:12px;
+  padding:1.5rem;max-width:620px;width:100%;
+  box-shadow:0 0 60px rgba(201,168,76,0.4);
+  max-height:90vh;overflow-y:auto;
+}
+.peek-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.2rem;
+  color:var(--gold);text-align:center;margin-bottom:0.3rem;
+}
+.peek-sub{
+  font-size:0.75rem;color:var(--text-sub);
+  text-align:center;margin-bottom:1.2rem;font-style:italic;
+}
+.peek-cards{display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem}
+.peek-card-option{
+  cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
+  border:2px solid transparent;border-radius:8px;padding:3px;
+}
+.peek-card-option:hover{
+  transform:translateY(-6px) scale(1.04);
+  border-color:var(--gold);
+  box-shadow:0 0 24px rgba(201,168,76,0.45);
+}
+.peek-hint{
+  font-size:0.72rem;color:var(--text-muted);
+  text-align:center;margin-top:0.75rem;
+}
+
+/* ═══════════════ REVEAL MODAL (Sabiduría) ═══════════════ */
+.reveal-backdrop{
+  position:fixed;inset:0;z-index:900;
+  background:rgba(0,0,0,0.9);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);padding:1.5rem;
+  flex-direction:column;
+}
+.reveal-backdrop.visible{display:flex}
+.reveal-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.3rem;
+  color:#4A90E2;margin-bottom:0.3rem;text-align:center;
+  text-shadow:0 0 20px rgba(74,144,226,0.6);
+}
+.reveal-sub{
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  letter-spacing:0.2em;color:var(--text-sub);
+  text-transform:uppercase;margin-bottom:1.5rem;text-align:center;
+}
+.reveal-cards{
+  display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;
+  margin-bottom:1.5rem;max-width:90vw;
+}
+.reveal-cards .game-card{
+  margin:0.3rem;cursor:default;
+  animation:revealCard 0.5s ease-out;
+}
+@keyframes revealCard{
+  from{transform:rotateY(180deg) scale(0.5);opacity:0}
+  to{transform:rotateY(0) scale(1);opacity:1}
+}
+.reveal-close{
+  font-family:'Cinzel',serif;font-size:0.75rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  background:#4A90E2;color:white;
+  border:none;padding:0.7rem 2rem;border-radius:4px;
+  cursor:pointer;transition:all 0.2s;
+}
+.reveal-close:hover{background:#6BA3E8;transform:translateY(-1px)}
+
+/* ═══════════════ COIN MODAL (duelo de antigüedad) ═══ */
+.coin-backdrop{
+  position:fixed;inset:0;z-index:950;
+  background:rgba(10,8,5,0.95);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);padding:1.5rem;
+  flex-direction:column;
+}
+.coin-backdrop.visible{display:flex}
+.coin-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.3rem;
+  color:var(--gold);margin-bottom:0.4rem;text-align:center;
+}
+.coin-sub{
+  font-size:0.75rem;color:var(--text-sub);
+  text-align:center;margin-bottom:1.6rem;font-style:italic;
+  max-width:500px;line-height:1.5;padding:0 1rem;
+}
+.coin-duel{
+  display:flex;gap:2rem;align-items:center;
+  margin-bottom:1.6rem;flex-wrap:wrap;justify-content:center;
+}
+.coin-player-slot{
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  min-width:120px;
+}
+.coin-slot-label{
+  font-family:'Cinzel',serif;font-size:0.7rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text-muted);
+}
+.coin-slot-label.winner{color:var(--gold);font-weight:700;text-shadow:0 0 12px rgba(201,168,76,0.5)}
+.coin-card-placeholder{
+  width:120px;height:168px;
+  border:2px dashed rgba(201,168,76,0.3);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(201,168,76,0.5);font-size:2rem;
+  font-family:'Cinzel Decorative',serif;
+}
+.coin-vs{
+  font-family:'Cinzel',serif;font-size:1.3rem;
+  color:var(--gold-dark);letter-spacing:0.2em;
+}
+.coin-actions{display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center}
+.coin-result{
+  font-family:'Cinzel',serif;font-size:0.85rem;
+  color:var(--gold-light);text-align:center;
+  margin-bottom:1rem;min-height:1.3rem;
+  letter-spacing:0.08em;max-width:500px;padding:0 1rem;
+}
+
+/* Goal selector */
+.coin-goal-selector{
+  margin-bottom:1.4rem;text-align:center;
+}
+.coin-goal-label{
+  font-family:'Cinzel',serif;font-size:0.65rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:0.55rem;
+}
+.coin-goal-btns{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap}
+.coin-goal-btn{
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  letter-spacing:0.08em;
+  background:rgba(0,0,0,0.4);color:var(--text-muted);
+  border:1px solid var(--border);
+  padding:0.55rem 1rem;border-radius:6px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  min-width:90px;
+}
+.coin-goal-btn span{font-size:0.58rem;color:var(--text-muted);font-family:'Source Sans 3',sans-serif;font-style:italic}
+.coin-goal-btn:hover{border-color:var(--gold-dark);color:var(--gold-light)}
+.coin-goal-btn.active{
+  background:var(--gold-dark);color:var(--parchment);
+  border-color:var(--gold);
+}
+.coin-goal-btn.active span{color:rgba(245,236,215,0.7)}
+
+/* Goal badge in sidebar / score area */
+.goal-badge{
+  font-family:'Cinzel',serif;font-size:0.6rem;
+  letter-spacing:0.12em;color:var(--text-muted);
+  text-transform:uppercase;text-align:center;
+  margin-bottom:0.4rem;
+}
+
+/* ═══ SELECTION MODE ═══ */
+.game-card.sel-eligible{
+  cursor:pointer;
+}
+.game-card.sel-eligible:hover{
+  box-shadow:0 0 0 2px var(--gold-dark),0 8px 20px rgba(0,0,0,0.6);
+}
+.game-card.sel-selected{
+  transform:translateY(-10px) scale(1.04);
+  box-shadow:0 0 0 3px var(--gold),0 12px 28px rgba(201,168,76,0.45);
+}
+.sel-checkmark{
+  position:absolute;top:4px;right:4px;z-index:10;
+  width:18px;height:18px;
+  background:var(--gold);color:var(--bg-dark);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:900;
+  box-shadow:0 1px 4px rgba(0,0,0,0.5);
+}
+.sel-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:linear-gradient(180deg,rgba(10,8,5,0) 0%,rgba(10,8,5,0.98) 40%);
+  padding:1.5rem 1rem 1rem;
+  display:none;
+  align-items:center;justify-content:center;flex-wrap:wrap;gap:0.6rem;
+  animation:slideUp 0.25s ease-out;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sel-bar.visible{display:flex}
+.sel-bar-info{
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  color:var(--gold-light);letter-spacing:0.1em;
+}
+
+/* ═══ VISION MODAL ═══ */
+.vision-backdrop{
+  position:fixed;inset:0;z-index:900;
+  background:rgba(0,0,0,0.88);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);padding:1.5rem;
+  flex-direction:column;
+}
+.vision-backdrop.visible{display:flex}
+.vision-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.3rem;
+  color:#B090E8;margin-bottom:0.3rem;text-align:center;
+  text-shadow:0 0 24px rgba(176,144,232,0.6);
+}
+.vision-sub{
+  font-family:'Cinzel',serif;font-size:0.72rem;
+  letter-spacing:0.2em;color:var(--text-sub);
+  text-transform:uppercase;margin-bottom:1.5rem;text-align:center;
+}
+.vision-cards{
+  display:flex;justify-content:center;gap:0.8rem;
+  flex-wrap:wrap;margin-bottom:1.2rem;max-width:92vw;
+}
+.vision-card-option{
+  cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
+  border:2px solid transparent;border-radius:8px;padding:3px;
+  position:relative;
+}
+.vision-card-option:hover{
+  transform:translateY(-5px) scale(1.04);
+  border-color:var(--gold);
+  box-shadow:0 0 20px rgba(201,168,76,0.4);
+}
+.vision-card-option.selected{
+  border-color:#B090E8;
+  box-shadow:0 0 20px rgba(176,144,232,0.5);
+}
+.vision-card-option.selected .vision-badge{display:flex}
+.vision-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:#B090E8;color:#1A0A30;
+  width:20px;height:20px;border-radius:50%;
+  font-size:0.7rem;font-weight:900;
+  display:none;align-items:center;justify-content:center;
+}
+.vision-hint{
+  font-size:0.72rem;color:var(--text-muted);
+  text-align:center;margin-bottom:1rem;
+}
+.vision-actions{display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center}
+
+/* ═══════════════ LIBRARY MODAL ═══════════════ */
+.library-backdrop{
+  position:fixed;inset:0;z-index:930;
+  background:rgba(0,0,0,0.92);
+  display:none;flex-direction:column;align-items:center;
+  padding:1rem 1rem 1.5rem;overflow-y:auto;
+  backdrop-filter:blur(8px);
+}
+.library-backdrop.visible{display:flex}
+.library-header{
+  width:100%;max-width:900px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+  border-bottom:1px solid var(--border);
+  padding-bottom:0.7rem;
+}
+.library-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);
+  letter-spacing:0.12em;
+}
+.library-close{
+  font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.15em;
+  text-transform:uppercase;background:none;border:1px solid var(--gold-dark);
+  color:var(--gold);padding:0.35rem 0.9rem;border-radius:4px;cursor:pointer;
+}
+.library-close:hover{background:rgba(201,168,76,0.15)}
+.library-tabs{
+  display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;
+  margin-bottom:1rem;width:100%;max-width:900px;
+}
+.lib-tab{
+  font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.12em;
+  text-transform:uppercase;padding:0.4rem 1rem;border-radius:4px;
+  cursor:pointer;border:1px solid var(--border);
+  background:rgba(0,0,0,0.4);color:var(--text-muted);
+  transition:all 0.2s;
+}
+.lib-tab:hover{border-color:var(--gold-dark);color:var(--gold)}
+.lib-tab.active{background:rgba(201,168,76,0.18);border-color:var(--gold);color:var(--gold)}
+.lib-tab.blessings{border-color:rgba(130,200,130,0.4);color:rgba(160,220,160,0.8)}
+.lib-tab.blessings.active{background:rgba(130,200,130,0.15);border-color:rgba(130,200,130,0.8);color:#90e090}
+.lib-tab.obstacles{border-color:rgba(208,112,112,0.4);color:rgba(220,140,140,0.8)}
+.lib-tab.obstacles.active{background:rgba(208,112,112,0.15);border-color:rgba(208,112,112,0.8);color:#E08080}
+.library-grid{
+  display:flex;flex-wrap:wrap;gap:0.7rem;justify-content:center;
+  width:100%;max-width:900px;
+}
+.lib-section-title{
+  width:100%;font-family:'Cinzel',serif;font-size:0.65rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text-muted);padding:0.3rem 0;
+  border-bottom:1px solid var(--border);margin-bottom:0.3rem;
+}
+
+/* ═══════════════ FORCE-DISCARD CHOICE MODAL (Tiempo de Angustia) ═══════════════ */
+.fdiscard-backdrop{
+  position:fixed;inset:0;z-index:920;
+  background:rgba(0,0,0,0.88);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(7px);padding:1.5rem;
+  flex-direction:column;
+}
+.fdiscard-backdrop.visible{display:flex}
+.fdiscard-modal{
+  background:linear-gradient(135deg,#1A100A 0%,#0F0905 100%);
+  border:2px solid #C27A3A;border-radius:12px;
+  padding:1.5rem 2rem;max-width:520px;width:100%;
+  box-shadow:0 0 50px rgba(194,122,58,0.4);
+  text-align:center;
+}
+.fdiscard-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.1rem;
+  color:#E8A060;margin-bottom:0.3rem;
+}
+.fdiscard-sub{
+  font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.2em;
+  color:var(--text-muted);text-transform:uppercase;margin-bottom:1.2rem;
+}
+.fdiscard-cards{
+  display:flex;justify-content:center;gap:0.7rem;
+  flex-wrap:wrap;margin-bottom:1rem;
+}
+
+/* ═══════════════ STEAL HAND MODAL ═══════════════ */
+.steal-backdrop{
+  position:fixed;inset:0;z-index:920;
+  background:rgba(0,0,0,0.88);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(7px);padding:1.5rem;
+  flex-direction:column;
+}
+.steal-backdrop.visible{display:flex}
+.steal-modal{
+  background:linear-gradient(135deg,#1A0A0A 0%,#0F0705 100%);
+  border:2px solid #8B1A1A;border-radius:12px;
+  padding:1.5rem 2rem;max-width:540px;width:100%;
+  box-shadow:0 0 60px rgba(139,26,26,0.5);
+  text-align:center;
+}
+.steal-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.2rem;
+  color:#D07070;margin-bottom:0.3rem;
+  text-shadow:0 0 20px rgba(208,112,112,0.5);
+}
+.steal-sub{
+  font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.2em;
+  color:var(--text-muted);text-transform:uppercase;margin-bottom:1.3rem;
+}
+.steal-cards{
+  display:flex;justify-content:center;gap:0.7rem;
+  flex-wrap:wrap;margin-bottom:1.2rem;
+}
+.steal-card-slot{
+  width:90px;height:126px;
+  border-radius:7px;
+  background:linear-gradient(135deg,#3A1818 0%,#6A1818 50%,#3A1818 100%);
+  border:2px solid #8B1A1A;
+  display:flex;align-items:center;justify-content:center;
+  color:#8B1A1A;font-family:'Cinzel Decorative',serif;font-size:2rem;
+  cursor:pointer;transition:all 0.2s;
+  flex-shrink:0;position:relative;
+  box-shadow:0 3px 8px rgba(0,0,0,0.5);
+}
+.steal-card-slot:hover{
+  border-color:#D07070;
+  box-shadow:0 0 20px rgba(208,112,112,0.5),0 4px 12px rgba(0,0,0,0.6);
+  transform:translateY(-6px) scale(1.06);
+  color:#D07070;
+}
+.steal-card-slot::before{
+  content:'?';
+  font-size:2rem;
+  font-family:'Cinzel Decorative',serif;
+}
+.steal-card-slot.picked{
+  border-color:var(--gold);
+  box-shadow:0 0 25px rgba(201,168,76,0.6);
+  animation:stealReveal 0.4s ease-out;
+  cursor:default;
+  overflow:hidden;
+  padding:0;
+}
+.steal-card-slot.picked::before{display:none}
+@keyframes stealReveal{
+  0%{transform:rotateY(90deg) scale(0.8);opacity:0}
+  100%{transform:rotateY(0deg) scale(1.06);opacity:1}
+}
+.steal-hint{
+  font-size:0.7rem;color:var(--text-muted);
+  font-style:italic;margin-top:0.5rem;
+}
+
+/* ═══════════════ AUDIO SETTINGS MODAL ═══════════════ */
+.audio-settings-backdrop{
+  position:fixed;inset:0;z-index:950;
+  background:rgba(0,0,0,0.85);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);padding:1.5rem;
+}
+.audio-settings-backdrop.visible{display:flex}
+.audio-settings-modal{
+  background:linear-gradient(135deg,#1A140A 0%,#0F0C07 100%);
+  border:2px solid var(--gold);border-radius:12px;
+  padding:1.8rem 2.2rem;max-width:380px;width:100%;
+  box-shadow:0 0 50px rgba(201,168,76,0.35);
+}
+.asettings-title{
+  font-family:'Cinzel Decorative',serif;font-size:1.1rem;
+  color:var(--gold);text-align:center;margin-bottom:1.4rem;
+}
+.asettings-row{
+  display:flex;align-items:center;gap:0.8rem;
+  margin-bottom:1rem;padding-bottom:1rem;
+  border-bottom:1px solid rgba(201,168,76,0.12);
+}
+.asettings-row:last-of-type{border-bottom:none;margin-bottom:1.2rem}
+.asettings-label{
+  font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--text-muted);
+  min-width:90px;
+}
+.asettings-toggle{
+  background:none;border:1px solid var(--border);
+  padding:0.25rem 0.55rem;border-radius:4px;
+  font-size:1rem;cursor:pointer;color:var(--text-main);
+  transition:all 0.2s;
+}
+.asettings-toggle:hover{border-color:var(--gold)}
+.asettings-toggle.muted{opacity:0.4}
+.asettings-slider{
+  flex:1;
+  -webkit-appearance:none;appearance:none;
+  height:3px;border-radius:2px;cursor:pointer;outline:none;border:none;
+  background:linear-gradient(to right, var(--gold) 0%, var(--gold) 50%, rgba(201,168,76,0.2) 50%);
+}
+.asettings-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;
+  background:var(--gold);border-radius:50%;
+  cursor:pointer;transition:transform 0.15s;
+}
+.asettings-slider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.asettings-val{
+  font-family:'Cinzel',serif;font-size:0.65rem;
+  color:var(--text-sub);min-width:32px;text-align:right;
+}
+
+/* ═══════════════ CREDITS MODAL ═══════════════ */
+.credits-backdrop{
+  position:fixed;inset:0;z-index:1100;
+  background:rgba(0,0,0,0.88);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);padding:1.5rem;
+  animation:fadeIn 0.25s forwards;
+}
+.credits-backdrop.visible{display:flex}
+.credits-modal{
+  background:linear-gradient(160deg,#1A140A 0%,#0F0C07 60%,#0A0F12 100%);
+  border:1.5px solid var(--gold-dark);border-radius:14px;
+  padding:2rem 2.2rem 1.8rem;max-width:480px;width:100%;
+  box-shadow:0 0 70px rgba(201,168,76,0.2),0 20px 50px rgba(0,0,0,0.8);
+  position:relative;
+}
+.credits-close-x{
+  position:absolute;top:0.9rem;right:1rem;
+  background:none;border:none;cursor:pointer;
+  font-size:1.1rem;color:var(--text-muted);
+  line-height:1;transition:color 0.2s;padding:4px;
+}
+.credits-close-x:hover{color:var(--gold)}
+.credits-logo{
+  font-family:'Cinzel Decorative',serif;font-size:1.15rem;
+  color:var(--gold);text-align:center;letter-spacing:0.15em;
+  margin-bottom:0.2rem;
+}
+.credits-version{
+  font-family:'Cinzel',serif;font-size:0.58rem;
+  color:var(--gold-dark);text-align:center;
+  letter-spacing:0.35em;text-transform:uppercase;
+  margin-bottom:1.2rem;
+}
+.credits-divider{
+  height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),transparent);
+  margin:1rem 0;
+}
+.credits-section-label{
+  font-family:'Cinzel',serif;font-size:0.6rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:0.65rem;
+}
+.credits-author{
+  display:flex;align-items:center;gap:0.9rem;
+  margin-bottom:0.9rem;
+}
+.credits-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel Decorative',serif;font-size:1.1rem;
+  color:var(--bg-dark);flex-shrink:0;
+  border:1.5px solid var(--gold);
+}
+.credits-name{
+  font-family:'Cinzel',serif;font-size:0.88rem;
+  color:var(--gold-light);font-weight:700;letter-spacing:0.06em;
+}
+.credits-role{
+  font-family:'Lora',serif;font-size:0.68rem;
+  color:var(--text-muted);font-style:italic;margin-top:2px;
+}
+.credits-links{
+  display:flex;flex-direction:column;gap:0.45rem;
+  margin-bottom:1rem;
+}
+.credits-link{
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:'Source Sans 3',sans-serif;font-size:0.8rem;
+  color:var(--text-sub);text-decoration:none;
+  padding:0.4rem 0.7rem;border-radius:5px;
+  border:1px solid rgba(201,168,76,0.12);
+  background:rgba(201,168,76,0.04);
+  transition:all 0.2s;
+}
+.credits-link:hover{
+  border-color:var(--gold-dark);color:var(--gold-light);
+  background:rgba(201,168,76,0.1);
+}
+.credits-link .cl-icon{
+  font-size:1rem;width:20px;text-align:center;flex-shrink:0;
+}
+.credits-link .cl-label{
+  font-size:0.66rem;color:var(--text-muted);
+  font-family:'Cinzel',serif;letter-spacing:0.1em;
+  text-transform:uppercase;min-width:60px;
+}
+.credits-link .cl-handle{flex:1}
+.credits-description{
+  font-family:'Lora',serif;font-size:0.75rem;
+  color:var(--text-main);line-height:1.65;
+  margin-bottom:0.9rem;
+}
+.credits-disclaimer{
+  font-family:'Source Sans 3',sans-serif;font-size:0.67rem;
+  color:var(--text-muted);line-height:1.55;
+  padding:0.7rem 0.8rem;
+  border:1px solid rgba(201,168,76,0.1);
+  border-radius:5px;background:rgba(0,0,0,0.3);
+  margin-bottom:1rem;
+}
+.credits-phase-badge{
+  display:inline-block;
+  font-family:'Cinzel',serif;font-size:0.6rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  background:rgba(139,26,26,0.3);color:#D07070;
+  border:1px solid rgba(139,26,26,0.5);
+  padding:2px 8px;border-radius:3px;
+  margin-left:6px;vertical-align:middle;
+}
+
+/* ═══════════════ END GAME MODAL ═══════════════ */
+.end-backdrop{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.85);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);animation:fadeIn 0.3s forwards;padding:1rem;
+}
+.end-modal{
+  background:linear-gradient(135deg,#1A140A 0%,#0F0C07 100%);
+  border:2px solid var(--gold);border-radius:12px;
+  padding:2rem 2.5rem;max-width:500px;text-align:center;
+  box-shadow:0 0 60px rgba(201,168,76,0.4);
+  transform:scale(0.9);animation:scaleIn 0.4s forwards;
+}
+@keyframes scaleIn{to{transform:scale(1)}}
+.end-modal h2{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--gold);margin-bottom:0.5rem}
+.end-modal h2 .sub{display:block;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.3em;color:var(--gold-dark);margin-top:0.25rem}
+.end-modal p{font-size:0.9rem;line-height:1.65;color:var(--text-main);margin:1rem 0 1.3rem}
+.end-modal .modal-stats{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:1rem 0;padding:0.75rem;background:rgba(0,0,0,0.4);border-radius:6px}
+.modal-stat-label{font-size:0.6rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.modal-stat-num{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold-light)}
+
+/* Responsive - improved for mid-size screens to avoid zoom-out */
+@media (max-width:1280px){
+  .game-card{width:100px;height:140px}
+  .deck-stack{width:80px;height:112px;font-size:1.5rem}
+  .market-cards{min-height:140px}
+  .opp-card-back{width:50px;height:70px}
+  .game-card.small{width:70px;height:98px}
+  .game-card:not(.small) .gc-body{-webkit-line-clamp:3}
+}
+@media (max-width:1100px){
+  .game-card{width:88px;height:124px}
+  .deck-stack{width:72px;height:100px;font-size:1.4rem}
+  .market-cards{min-height:124px}
+  .game-card.small{width:62px;height:88px}
+  .game-card .gc-body{font-size:0.5rem}
+  .action-btn{font-size:0.6rem;padding:0.35rem 0.65rem}
+  .turn-indicator{font-size:0.62rem;padding:0.3rem 0.65rem}
+}
+@media (max-width:980px){
+  .game-container{grid-template-columns:1fr;height:auto}
+  .sidebar{height:auto;border-left:none;border-top:1px solid var(--border);position:relative;top:0}
+  .table-area{height:auto;min-height:0}
+}
+@media (max-width:720px){
+  .brand span{display:none}
+  .game-card{width:80px;height:112px}
+  .game-card .gc-body{font-size:0.48rem;-webkit-line-clamp:3}
+  .deck-stack{width:68px;height:96px;font-size:1.3rem}
+  .action-btn{font-size:0.55rem;padding:0.3rem 0.55rem}
+  .turn-indicator{font-size:0.56rem;padding:0.3rem 0.5rem}
+  .game-card.zoomed{transform:translate(-50%,-50%) scale(1.7)}
+  .zoom-actions{top:calc(50% + 140px)}
+  .coin-card-placeholder{width:90px;height:126px}
+  .coin-vs{font-size:1rem}
+  .coin-duel{gap:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">✦ PROFETA <span>Express · v9</span></div>
+  <div class="header-actions">
+    <div class="difficulty-switch">
+      <span class="diff-label">IA:</span>
+      <button class="diff-btn" data-diff="facil">Fácil</button>
+      <button class="diff-btn active" data-diff="normal">Normal</button>
+      <button class="diff-btn" data-diff="dificil">Difícil</button>
+    </div>
+    <button class="btn" id="btn-audio-settings" title="Configuración de audio">🔊 Audio</button>
+    <button class="btn" id="btn-credits" title="Créditos y contacto">✦ Créditos</button>
+    <button class="btn" id="btn-library" title="Biblioteca de cartas">📚 Cartas</button>
+    <button class="btn" id="btn-rules">Reglas</button>
+    <button class="btn btn-primary" id="btn-new">Nueva partida</button>
+  </div>
+</header>
+
+<!-- GAME CONTAINER -->
+<div class="game-container">
+
+  <!-- TABLE AREA -->
+  <div class="table-area" id="table-area">
+
+    <!-- START OVERLAY -->
+    <div class="start-overlay" id="start-overlay">
+      <div class="start-tagline">Cinco eras · Tres cartas · Una profecía por completar</div>
+      <div class="start-deck-big" id="start-deck">
+        <div class="deck-symbol">✦</div>
+        <div class="deck-title">Profeta</div>
+        <div class="deck-sub">28 cartas barajadas<br>esperando ser repartidas</div>
+      </div>
+      <button class="start-btn" id="start-btn">Iniciar partida</button>
+    </div>
+
+    <!-- OPPONENT ZONE -->
+    <div class="zone opponent-zone">
+      <div class="zone-row" style="margin-bottom:5px">
+        <div class="zone-label" style="flex:1">
+          <strong>🤖 IA</strong> · <span id="opp-state">Esperando...</span>
+        </div>
+        <span class="zone-label">Mano: <span id="opp-hand-count">0</span></span>
+      </div>
+      <div class="zone-row" style="gap:0.5rem;align-items:flex-start">
+        <div class="opp-hand" id="opp-hand" style="flex:0 0 auto"></div>
+        <div class="prophecy-era-label empty" id="opp-era-label" style="flex-shrink:0">
+          <span class="era-title">Profecía</span>
+          <span class="era-desc">Esperando</span>
+        </div>
+        <div class="prophecy-zone" id="opp-prophecy" style="flex:1"></div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center-zone">
+      <div class="deck-zone">
+        <div class="zone-title">Mazo</div>
+        <div class="deck-stack" id="deck-stack">
+          ✦
+          <span class="deck-count" id="deck-count">0</span>
+        </div>
+      </div>
+      <div class="market-zone">
+        <div class="zone-title">Mercado</div>
+        <div class="market-cards" id="market"></div>
+      </div>
+      <div class="deck-zone">
+        <div class="zone-title">Descarte</div>
+        <div class="deck-stack discard" id="discard-stack">
+          ✗
+          <span class="deck-count" id="discard-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYER ZONE -->
+    <div class="zone player-zone">
+      <div class="zone-row" style="gap:0.5rem;align-items:flex-start">
+        <div class="prophecy-era-label empty" id="player-era-label" style="flex-shrink:0">
+          <span class="era-title">Tu profecía</span>
+          <span class="era-desc">Sin iniciar</span>
+        </div>
+        <div class="prophecy-zone" id="player-prophecy" style="flex:1"></div>
+      </div>
+      <div class="zone-row" style="margin-top:6px">
+        <span class="zone-label" style="flex:1"><strong>✦ Tú</strong> · Click en carta para ampliar y actuar</span>
+        <span class="zone-label">Mano: <span id="player-hand-count">0</span></span>
+      </div>
+      <div class="player-hand-fan" id="player-hand"></div>
+    </div>
+
+    <!-- ACTIONS BAR -->
+    <div class="actions-bar">
+      <div class="turn-indicator" id="turn-indicator">Tu turno <span class="timer-display" id="turn-timer" style="display:none">60</span></div>
+      <button class="action-btn" id="btn-draw" disabled>Robar</button>
+      <button class="action-btn" id="btn-select-multi" disabled title="Seleccionar varias cartas para intercambio múltiple">☐ Selección múltiple</button>
+      <button class="action-btn" id="btn-renew-market" disabled title="Renovar mercado (1 acción)">↻ Mercado</button>
+      <button class="action-btn" id="btn-reset-hand" disabled title="Descartar mano y robar 3 nuevas (1 acción)">↻ Mano</button>
+      <button class="action-btn" id="btn-discard-prophecy" disabled title="Descartar profecía en construcción (1 acción)">✗ Profecía</button>
+      <button class="action-btn primary" id="btn-end" disabled>Terminar turno</button>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Puntuación</h3>
+    <div class="goal-badge" id="goal-badge">Meta: 2 profecías para ganar</div>
+    <div class="scores">
+      <div class="score-card player">
+        <div class="score-name">Tú</div>
+        <div class="score-stats">
+          <div><span class="score-num" id="player-prophecies">0</span>Profecías</div>
+          <div><span class="score-num" id="player-souls">0</span>Almas</div>
+        </div>
+      </div>
+      <div class="score-card opp">
+        <div class="score-name">IA</div>
+        <div class="score-stats">
+          <div><span class="score-num" id="opp-prophecies">0</span>Profecías</div>
+          <div><span class="score-num" id="opp-souls">0</span>Almas</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Historial</h3>
+    <div class="log-container" id="log"></div>
+
+    <div class="rules-box">
+      <strong>Eras bíblicas</strong>
+      <div class="era-item">
+        <span class="era-dot era-patriarcal"></span>
+        <div><strong>Patriarcal</strong><span class="era-period">~2000–1500 a.C.</span><span style="font-size:0.6rem;color:var(--text-muted)">Noé, Abraham y los patriarcas.</span></div>
+      </div>
+      <div class="era-item">
+        <span class="era-dot era-exodo"></span>
+        <div><strong>Éxodo</strong><span class="era-period">~1500–1000 a.C.</span><span style="font-size:0.6rem;color:var(--text-muted)">Moisés, la Ley y la conquista.</span></div>
+      </div>
+      <div class="era-item">
+        <span class="era-dot era-cautiverio"></span>
+        <div><strong>Cautiverio</strong><span class="era-period">~605–400 a.C.</span><span style="font-size:0.6rem;color:var(--text-muted)">Daniel y los grandes reinos.</span></div>
+      </div>
+      <div class="era-item">
+        <span class="era-dot era-cristo"></span>
+        <div><strong>Cristo</strong><span class="era-period">~4 a.C.–100 d.C.</span><span style="font-size:0.6rem;color:var(--text-muted)">La venida del Mesías.</span></div>
+      </div>
+      <div class="era-item">
+        <span class="era-dot era-fin"></span>
+        <div><strong>Fin del Tiempo</strong><span class="era-period">1798 d.C.–futuro</span><span style="font-size:0.6rem;color:var(--text-muted)">Profecías escatológicas y retorno.</span></div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ZOOM BACKDROP (click to dismiss) -->
+<div class="zoom-backdrop" id="zoom-backdrop"></div>
+<div class="zoom-actions" id="zoom-actions"></div>
+
+<!-- OBSTACLE ALERT -->
+<div class="obstacle-alert" id="obstacle-alert">
+  <div class="oa-title" id="oa-title">⚡ Obstáculo lanzado</div>
+  <div class="oa-name" id="oa-name">—</div>
+  <div class="oa-effect" id="oa-effect">—</div>
+</div>
+
+<!-- PEEK-PICK MODAL (Guía del Espíritu) -->
+<div class="peek-backdrop" id="peek-backdrop">
+  <div class="peek-modal">
+    <div class="peek-title">✦ Guía del Espíritu</div>
+    <div class="peek-sub">Elige 1 carta de las próximas 3. Las otras se descartan.</div>
+    <div class="peek-cards" id="peek-cards"></div>
+    <div class="peek-hint">Haz clic en la carta que deseas tomar.</div>
+  </div>
+</div>
+
+<!-- DISCARD-THEN-RETRIEVE MODAL -->
+<div class="peek-backdrop" id="discard-then-retrieve">
+  <div class="peek-modal">
+    <div class="peek-title">Mano llena</div>
+    <div class="peek-sub">Elige qué carta descartar de tu mano para liberar espacio y retirar la carta de profecía. Ambas acciones cuentan como 1.</div>
+    <div class="peek-cards" id="dtr-cards"></div>
+    <div class="peek-hint">Click para descartar y completar el intercambio.</div>
+  </div>
+</div>
+
+<!-- REVEAL MODAL (Sabiduría) -->
+<div class="reveal-backdrop" id="reveal-backdrop">
+  <div class="reveal-title">📚 Sabiduría revelada</div>
+  <div class="reveal-sub">La mano de la IA</div>
+  <div class="reveal-cards" id="reveal-cards"></div>
+  <button class="reveal-close" id="reveal-close">Cerrar</button>
+</div>
+
+<!-- COIN MODAL (carta más antigua define quién inicia) -->
+<div class="coin-backdrop" id="coin-backdrop">
+  <div class="coin-title">Configura la partida</div>
+  <div class="coin-sub">Elige la meta y saca una carta para ver quién inicia.</div>
+
+  <div class="coin-goal-selector">
+    <div class="coin-goal-label">Meta para ganar</div>
+    <div class="coin-goal-btns">
+      <button class="coin-goal-btn" data-n="1">1 profecía<span>~8 min</span></button>
+      <button class="coin-goal-btn active" data-n="2">2 profecías<span>~15 min</span></button>
+      <button class="coin-goal-btn" data-n="3">3 profecías<span>~25 min</span></button>
+    </div>
+  </div>
+
+  <div class="coin-result" id="coin-result">&nbsp;</div>
+  <div class="coin-duel">
+    <div class="coin-player-slot">
+      <div class="coin-slot-label" id="coin-label-player">Tú</div>
+      <div id="coin-slot-player"><div class="coin-card-placeholder">?</div></div>
+    </div>
+    <div class="coin-vs">VS</div>
+    <div class="coin-player-slot">
+      <div class="coin-slot-label" id="coin-label-opp">IA</div>
+      <div id="coin-slot-opp"><div class="coin-card-placeholder">?</div></div>
+    </div>
+  </div>
+  <div class="coin-actions" id="coin-actions">
+    <button class="action-btn primary" id="btn-coin-draw">Sacar cartas</button>
+  </div>
+</div>
+
+<!-- FLOATING MSG -->
+<div class="floating-msg" id="floating-msg"></div>
+
+<!-- VISION PROFETICA MODAL -->
+<div class="vision-backdrop" id="vision-backdrop">
+  <div class="vision-title">👁‍🗨 Visión Profética</div>
+  <div class="vision-sub">Elige hasta 2 cartas de la misma era</div>
+  <div class="vision-cards" id="vision-cards"></div>
+  <div class="vision-hint" id="vision-hint">Selecciona 1 o 2 cartas de profeta/evento de la misma era.</div>
+  <div class="vision-actions">
+    <button class="action-btn primary" id="vision-confirm" disabled>Colocar en profecía</button>
+    <button class="action-btn" id="vision-cancel">Cancelar</button>
+  </div>
+</div>
+
+<!-- SELECTION BAR (multi-select mode) -->
+<div class="sel-bar" id="sel-bar">
+  <span class="sel-bar-info" id="sel-bar-info">0 cartas seleccionadas</span>
+  <button class="action-btn primary" id="sel-btn-market" disabled>↔ Con mercado</button>
+  <button class="action-btn primary" id="sel-btn-deck" disabled>↕ Con mazo</button>
+  <button class="action-btn" id="sel-btn-cancel">Cancelar</button>
+</div>
+
+
+
+<!-- LIBRARY MODAL -->
+<div class="library-backdrop" id="library-backdrop">
+  <div class="library-header">
+    <span class="library-title">📚 Biblioteca de Cartas</span>
+    <button class="library-close" onclick="closeLibrary()">✕ Cerrar</button>
+  </div>
+  <div class="library-tabs" id="library-tabs">
+    <button class="lib-tab active" data-filter="patriarcal" onclick="setLibTab(this,'patriarcal')">🌿 Patriarcal</button>
+    <button class="lib-tab" data-filter="exodo" onclick="setLibTab(this,'exodo')">📜 Éxodo</button>
+    <button class="lib-tab" data-filter="cautiverio" onclick="setLibTab(this,'cautiverio')">🦁 Cautiverio</button>
+    <button class="lib-tab" data-filter="cristo" onclick="setLibTab(this,'cristo')">✝ Cristo</button>
+    <button class="lib-tab" data-filter="fin" onclick="setLibTab(this,'fin')">⭐ Fin del Tiempo</button>
+    <button class="lib-tab blessings" data-filter="blessing" onclick="setLibTab(this,'blessing')">✨ Bendiciones</button>
+    <button class="lib-tab obstacles" data-filter="obstacle" onclick="setLibTab(this,'obstacle')">⚡ Obstáculos</button>
+  </div>
+  <div class="library-grid" id="library-grid"></div>
+</div>
+
+<!-- CREDITS MODAL -->
+<div class="credits-backdrop" id="credits-backdrop">
+  <div class="credits-modal">
+    <button class="credits-close-x" id="credits-close-x">✕</button>
+
+    <div class="credits-logo">✦ PROFETA Express</div>
+    <div class="credits-version">Versión Alpha v9 · 2026 <span class="credits-phase-badge">Alpha</span></div>
+
+    <div class="credits-divider"></div>
+
+    <div class="credits-section-label">Creado por</div>
+    <div class="credits-author">
+      <div class="credits-avatar">JD</div>
+      <div>
+        <div class="credits-name">José D. Pérez</div>
+        <div class="credits-role">Diseñador visual &amp; comunicador · Iniciativa independiente</div>
+      </div>
+    </div>
+
+    <div class="credits-links">
+      <a class="credits-link" href="https://instagram.com/jotady" target="_blank" rel="noopener">
+        <span class="cl-icon">📸</span>
+        <span class="cl-label">Instagram</span>
+        <span class="cl-handle">@jotady</span>
+      </a>
+      <a class="credits-link" href="https://linkedin.com/in/jotady" target="_blank" rel="noopener">
+        <span class="cl-icon">💼</span>
+        <span class="cl-label">LinkedIn</span>
+        <span class="cl-handle">@jotady</span>
+      </a>
+      <a class="credits-link" href="mailto:jdpcomunicadorvisual@gmail.com">
+        <span class="cl-icon">✉</span>
+        <span class="cl-label">Correo</span>
+        <span class="cl-handle">jdpcomunicadorvisual@gmail.com</span>
+      </a>
+    </div>
+
+    <div class="credits-divider"></div>
+
+    <div class="credits-description">
+      Profeta Express nació de una pregunta sencilla: ¿cómo hacer que estudiar las profecías bíblicas sea tan emocionante como jugar? Este proyecto busca acercar a jóvenes y familias al estudio de las Escrituras a través del juego, la estrategia y la convivencia. Aún estamos construyéndolo — cada partida que juegas es parte de ese proceso.
+    </div>
+
+    <div class="credits-disclaimer">
+      🛡 El contenido de este juego está basado en los principios bíblicos y la interpretación historicista de las Escrituras, conforme a las creencias de la <strong style="color:var(--text-sub)">Iglesia Adventista del Séptimo Día</strong>. Este proyecto es una iniciativa personal e independiente. No ha sido financiado, comisionado ni representa oficialmente a la iglesia ni a ninguna de sus instituciones.
+    </div>
+
+    <div style="text-align:center">
+      <button class="btn btn-primary" id="credits-close-btn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORCE-DISCARD MODAL (Tiempo de Angustia — jugador elige qué descartar) -->
+<div class="fdiscard-backdrop" id="fdiscard-backdrop">
+  <div class="fdiscard-modal">
+    <div class="fdiscard-title">⚡ Tiempo de Angustia</div>
+    <div class="fdiscard-sub">Elige qué carta descartar de tu mano</div>
+    <div class="fdiscard-cards" id="fdiscard-cards"></div>
+  </div>
+</div>
+
+<!-- STEAL HAND MODAL (Gran Apostasía — jugador elige carta oculta) -->
+<div class="steal-backdrop" id="steal-backdrop">
+  <div class="steal-modal">
+    <div class="steal-title">🌑 Gran Apostasía</div>
+    <div class="steal-sub">Elige una carta de la mano del rival</div>
+    <div class="steal-cards" id="steal-cards"></div>
+    <div class="steal-hint">Las cartas están boca abajo. Elige una — el azar es tuyo.</div>
+  </div>
+</div>
+
+<!-- AUDIO SETTINGS MODAL -->
+<div class="audio-settings-backdrop" id="audio-settings-backdrop">
+  <div class="audio-settings-modal">
+    <div class="asettings-title">🔊 Configuración de Audio</div>
+    <div class="asettings-row">
+      <span class="asettings-label">Música</span>
+      <button class="asettings-toggle" id="as-toggle-music">🎵</button>
+      <input type="range" class="asettings-slider" id="as-music-vol" min="0" max="1" step="0.05" value="0.45">
+      <span class="asettings-val" id="as-music-val">45%</span>
+    </div>
+    <div class="asettings-row">
+      <span class="asettings-label">Efectos</span>
+      <button class="asettings-toggle" id="as-toggle-sfx">🔊</button>
+      <input type="range" class="asettings-slider" id="as-sfx-vol" min="0" max="1" step="0.05" value="0.4">
+      <span class="asettings-val" id="as-sfx-val">40%</span>
+    </div>
+    <div style="text-align:center">
+      <button class="btn btn-primary" id="as-close">Listo</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const AUDIO_DATA = {
+  card01: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_02-COLOCAR-EN-PROFECIA.mp3",
+  card02: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_02-COLOCAR-EN-PROFECIA.mp3",
+  card03: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_03-HOVER-CARTA.mp3",
+  card04: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_04-Barajeo-reparto.mp3",
+  card05: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_05-DESECHAR-CARTA.mp3",
+  card06: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_06%20INTERCAMBIO%20DE%20CARTAS.mp3",
+  card08: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/CARD_08%20RENOVAR%20MAZO.mp3",
+  evt04:  "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/EVT_04-Profec%C3%ADa%20completada%20(jugador).mp3",
+  evt05:  "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/EVT_05%20%E2%80%94%20Profec%C3%ADa%20completada%20(IA).mp3",
+  evt08:  "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/EVT_08%20%E2%80%94%20Derrota%20(IA%20gana).mp3",
+  mus01v1:"https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/MUS_01%20%E2%80%94%20Tema%20principal%20(loop%20de%20juego)%20v1.mp3",
+  mus01v2:"https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/MUS_01%20%E2%80%94%20Tema%20principal%20(loop%20de%20juego)%20v2.mp3",
+  mus02:  "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/MUS_02%20%E2%80%94%20Pantalla%20de%20inicio%20(pre-partida).mp3",
+  mus03:  "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/MUS_03-EVT_07-Victoria%20del%20jugador.mp3",
+  ui01:   "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/UI_01-HOVER-BUTON.mp3",
+  ui02:   "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/UI_02-clic-boton.mp3",
+  countdown: "https://cdn.jsdelivr.net/gh/jotady/profeta-express-assets@main/audio/countdown-sound-for-timer.mp3",
+};
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   PROFETA EXPRESS v3
+   ═══════════════════════════════════════════════════════════════ */
+
+const CARDS_DATA = [
+  {id:'p1',type:'prophet',era:'patriarcal',eraName:'Patriarcal',name:'Noé',ref:'Génesis 6–9',icon:'🛶',souls:3,desc:'Constructor del arca. Predicó justicia en tiempos de corrupción universal.'},
+  {id:'p2',type:'prophet',era:'patriarcal',eraName:'Patriarcal',name:'Abraham',ref:'Génesis 12–25',icon:'✡',souls:3,desc:'Padre de la fe. Llamado a dejar su tierra y recibir el pacto de la promesa.'},
+  {id:'e1',type:'event',era:'patriarcal',eraName:'Patriarcal',name:'El Diluvio',ref:'Génesis 7:11',icon:'🌊',souls:2,desc:'Dios juzga la tierra con agua. Solo la familia de Noé se salva.'},
+  {id:'e2',type:'event',era:'patriarcal',eraName:'Patriarcal',name:'El Pacto',ref:'Génesis 15:18',icon:'🌈',souls:2,desc:'Dios hace pacto con Abraham y le promete descendencia numerosa.'},
+
+  {id:'p3',type:'prophet',era:'exodo',eraName:'Éxodo',name:'Moisés',ref:'Éxodo 3',icon:'📜',souls:3,desc:'Libertador de Israel. Recibió la Ley en el Sinaí.'},
+  {id:'p4',type:'prophet',era:'exodo',eraName:'Éxodo',name:'Josué',ref:'Josué 1',icon:'⚔',souls:2,desc:'Sucesor de Moisés. Condujo a Israel a la conquista de Canaán.'},
+  {id:'e3',type:'event',era:'exodo',eraName:'Éxodo',name:'Las 10 Plagas',ref:'Éxodo 7–12',icon:'🩸',souls:2,desc:'Dios humilla a los dioses de Egipto y libra a Su pueblo.'},
+  {id:'e4',type:'event',era:'exodo',eraName:'Éxodo',name:'El Santuario',ref:'Éxodo 25:8',icon:'⛩',souls:2,desc:'Morada de Dios entre Su pueblo. Sombra del santuario celestial.'},
+
+  {id:'p5',type:'prophet',era:'cautiverio',eraName:'Cautiverio',name:'Daniel',ref:'Daniel 1',icon:'🦁',souls:4,desc:'Profeta del exilio babilónico. Recibió visiones del tiempo del fin.'},
+  {id:'p6',type:'prophet',era:'cautiverio',eraName:'Cautiverio',name:'Ezequiel',ref:'Ezequiel 1',icon:'👁',souls:3,desc:'Profeta visionario entre los cautivos en Babilonia.'},
+  {id:'e5',type:'event',era:'cautiverio',eraName:'Cautiverio',name:'Las 70 Semanas',ref:'Daniel 9:24–27',icon:'⏳',souls:3,desc:'Profecía mesiánica que marca el tiempo exacto del Ungido.'},
+  {id:'e6',type:'event',era:'cautiverio',eraName:'Cautiverio',name:'Los 4 Reinos',ref:'Daniel 2',icon:'👑',souls:3,desc:'Babilonia, Medo-Persia, Grecia y Roma: panorama histórico profético.'},
+
+  {id:'p7',type:'prophet',era:'cristo',eraName:'Cristo',name:'Juan Bautista',ref:'Mateo 3',icon:'🕊',souls:3,desc:'Preparó el camino del Señor. Voz que clama en el desierto.'},
+  {id:'p8',type:'prophet',era:'cristo',eraName:'Cristo',name:'Jesús',ref:'Mateo 1:21',icon:'✝',souls:5,desc:'El Cordero de Dios. Salvador y centro de toda la Escritura.'},
+  {id:'e7',type:'event',era:'cristo',eraName:'Cristo',name:'El Bautismo',ref:'Mateo 3:16',icon:'💧',souls:2,desc:'Cielos abiertos. El Padre declara al Hijo amado.'},
+  {id:'e8',type:'event',era:'cristo',eraName:'Cristo',name:'La Crucifixión',ref:'Juan 19',icon:'✙',souls:3,desc:'Consumación del plan de salvación. Se rasga el velo del templo.'},
+
+  {id:'p9',type:'prophet',era:'fin',eraName:'Fin del Tiempo',name:'Juan (Apóstol)',ref:'Apocalipsis 1',icon:'📖',souls:4,desc:'Recibió la revelación de Jesucristo en la isla de Patmos.'},
+  {id:'p10',type:'prophet',era:'fin',eraName:'Fin del Tiempo',name:'Elena G. White',ref:'Testimonios',icon:'🪶',souls:3,desc:'Mensajera del Señor al pueblo del remanente.'},
+  {id:'e9',type:'event',era:'fin',eraName:'Fin del Tiempo',name:'1844 — El Juicio',ref:'Daniel 8:14',icon:'⚖',souls:3,desc:'Inicio del Juicio Investigador en el santuario celestial.'},
+  {id:'e10',type:'event',era:'fin',eraName:'Fin del Tiempo',name:'Segunda Venida',ref:'Apocalipsis 1:7',icon:'⭐',souls:4,desc:'Cristo vuelve en gloria visible por toda la Tierra.'},
+
+  // BENDICIONES (7) — Lluvia Temprana reconceptualizada + Visión Profética nueva
+  {id:'b1',type:'blessing',era:null,eraName:'Bendición',name:'Guía del Espíritu',ref:'Juan 16:13',icon:'✦',souls:0,desc:'Mira las próximas 3 cartas del mazo y elige 1. Las otras se descartan.',effect:'peek-pick'},
+  {id:'b2',type:'blessing',era:null,eraName:'Bendición',name:'Lluvia Temprana',ref:'Joel 2:23',icon:'☔',souls:0,desc:'Realiza 2 movimientos más en este turno (además del uso de esta carta).',effect:'extra-action'},
+  {id:'b3',type:'blessing',era:null,eraName:'Bendición',name:'Fe Firme',ref:'Hebreos 11:1',icon:'🔥',souls:0,desc:'Recupera una carta de tu profecía en construcción a tu mano.',effect:'retrieve-prophecy'},
+  {id:'b4',type:'blessing',era:null,eraName:'Bendición',name:'Sabiduría',ref:'Santiago 1:5',icon:'📚',souls:0,desc:'Revela visualmente la mano del rival.',effect:'reveal'},
+  {id:'b5',type:'blessing',era:null,eraName:'Bendición',name:'Protección Divina',ref:'Salmo 91',icon:'🛡',souls:0,desc:'Anula el próximo obstáculo que te lance el rival.',effect:'shield'},
+  {id:'b6',type:'blessing',era:null,eraName:'Bendición',name:'Oración',ref:'Santiago 5:16',icon:'🙏',souls:0,desc:'Recupera la última carta del descarte a tu mano.',effect:'recover'},
+  {id:'b7',type:'blessing',era:null,eraName:'Bendición',name:'Visión Profética',ref:'Habacuc 2:2',icon:'👁‍🗨',souls:0,desc:'Coloca hasta 2 cartas de la misma era en tu profecía este turno.',effect:'double-place'},
+
+  // OBSTÁCULOS (4) — armas contra el rival
+  {id:'o1',type:'obstacle',era:null,eraName:'Obstáculo',name:'Tiempo de Angustia',ref:'Daniel 12:1',icon:'⚡',souls:0,desc:'El rival debe descartar 1 carta de su mano — él elige cuál.',effect:'force-discard'},
+  {id:'o2',type:'obstacle',era:null,eraName:'Obstáculo',name:'Gran Apostasía',ref:'2 Tes. 2:3',icon:'🌑',souls:0,desc:'Roba una carta al azar de la mano del rival.',effect:'steal-hand'},
+  {id:'o3',type:'obstacle',era:null,eraName:'Obstáculo',name:'La Persecución',ref:'Apoc. 12:13',icon:'🔥',souls:0,desc:'El rival pierde su próxima acción.',effect:'skip-action'},
+  {id:'o4',type:'obstacle',era:null,eraName:'Obstáculo',name:'Confusión de Babel',ref:'Génesis 11:9',icon:'🌀',souls:0,desc:'Devuelve 1 carta de la profecía del rival al mazo.',effect:'disrupt-prophecy'},
+];
+
+const ERA_INFO = {
+  patriarcal: {name:'Patriarcal', period:'~2000–1500 a.C.', desc:'Era de los patriarcas: Noé y Abraham.'},
+  exodo: {name:'Éxodo', period:'~1500–1000 a.C.', desc:'Liberación de Egipto. Entrega de la Ley.'},
+  cautiverio: {name:'Cautiverio', period:'~605–400 a.C.', desc:'Exilio en Babilonia. Visiones proféticas.'},
+  cristo: {name:'Cristo', period:'~4 a.C.–100 d.C.', desc:'La venida del Mesías y su ministerio.'},
+  fin: {name:'Fin del Tiempo', period:'1798 d.C.–futuro', desc:'Profecías escatológicas.'},
+};
+
+// ─── GAME STATE ────────────────────────────────────────────────
+/*
+  NEW TURN MECHANIC — fixes the deadlock:
+  • Cada jugador comienza con 3 cartas repartidas (la intro).
+  • En cada turno, el jugador PUEDE realizar 1 acción (colocar, intercambiar, usar bendición, retirar profecía).
+    Acciones adicionales vienen de "Lluvia Temprana".
+  • Al TERMINAR el turno, si tiene menos cartas que el límite, se refilla automáticamente desde el mazo (auto-draw).
+  • El botón "Robar carta" solo se habilita como acción opcional cuando la mano tiene hueco (<=2 cartas), permitiendo robar si descartó algo.
+  • Obstáculos robados se activan al instante y no ocupan espacio en mano.
+*/
+const game = {
+  started: false,
+  deck: [],
+  discard: [],
+  market: [],
+  player: {
+    hand: [],
+    prophecyArea: [],
+    completedProphecies: [],
+    souls: 0,
+    actionsRemaining: 1,
+    shield: false,
+    revealedOpponent: false,
+    skipNextAction: false,
+    visionActive: false,
+  },
+  opp: {
+    hand: [],
+    prophecyArea: [],
+    completedProphecies: [],
+    souls: 0,
+    shield: false,
+    skipNextAction: false,
+    visionActive: false,
+  },
+  difficulty: 'normal',
+  propheciesToWin: 2,
+  selectionMode: false,
+  selectedCards: [],
+  currentTurn: 'player',
+  gameOver: false,
+  turnNumber: 1,
+  HAND_LIMIT: 3,
+  handLimitBonus: 0,
+};
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function log(msg,type='system'){
+  const logEl=document.getElementById('log');
+  const entry=document.createElement('div');
+  entry.className=`log-entry ${type}`;
+  const now=new Date();
+  const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  entry.innerHTML=`<span class="log-time">[${t}]</span>${msg}`;
+  logEl.appendChild(entry);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+
+function showFloatingMsg(text){
+  const el=document.getElementById('floating-msg');
+  el.textContent=text;
+  el.classList.remove('visible');
+  void el.offsetWidth;
+  el.classList.add('visible');
+  setTimeout(()=>el.classList.remove('visible'),1800);
+}
+
+function showObstacleAlert(card, targetWho){
+  const targetText = targetWho === 'player' ? 'contra TI' : 'contra la IA';
+  document.getElementById('oa-title').innerHTML = `⚡ Obstáculo lanzado ${targetText}`;
+  document.getElementById('oa-name').textContent = card.name;
+  document.getElementById('oa-effect').textContent = card.desc;
+  const el = document.getElementById('obstacle-alert');
+  el.classList.remove('visible');
+  void el.offsetWidth;
+  el.classList.add('visible');
+}
+
+function drawFromDeck(){
+  if(game.deck.length === 0 && game.discard.length > 0){
+    log(`♻ El mazo se renovó desde el descarte (${game.discard.length} cartas).`,'event');
+    game.deck = shuffle(game.discard);
+    game.discard = [];
+  }
+  if(game.deck.length === 0) return null;
+  return game.deck.pop();
+}
+
+function discardCard(card){ game.discard.push(card); }
+
+// ─── CARD RENDERING ────────────────────────────────────────────
+function renderCard(card, options = {}){
+  const {small=false, faceDown=false, onClick=null, disabled=false, selected=false, highlight=false} = options;
+
+  if(faceDown){
+    const div = document.createElement('div');
+    div.className = 'opp-card-back';
+    div.innerHTML = '✦';
+    return div;
+  }
+
+  const div = document.createElement('div');
+  const eraClass = card.era ? `card-era-${card.era}` : '';
+  div.className = `game-card card-${card.type} ${eraClass}${small?' small':''}${disabled?' disabled':''}${selected?' selected':''}${highlight?' highlight-swap':''}`;
+  div.dataset.cardId = card.id;
+
+  const eraBandClass = card.era ? `era-${card.era}` : '';
+  const eraLabel = card.era ? card.eraName : (card.type === 'blessing' ? 'Bendición' : 'Obstáculo');
+
+  const typeLabel = {
+    prophet:'◆ PROFETA',
+    event:'◈ EVENTO',
+    blessing:'✦ DON',
+    obstacle:'⚠ PRUEBA',
+  }[card.type];
+
+  const soulsDisplay = card.souls > 0 ? `${card.souls}☩` : (card.type === 'blessing' ? 'Fe' : '⚠');
+
+  div.innerHTML = `
+    <div class="card-era-band ${eraBandClass}">${eraLabel}</div>
+    <div class="gc-top">
+      <span class="gc-type">${typeLabel}</span>
+      <span class="gc-souls">${soulsDisplay}</span>
+    </div>
+    <div class="gc-art">${card.icon}</div>
+    <div class="gc-name-strip">
+      <div class="gc-name">${card.name}</div>
+      <div class="gc-ref">${card.ref}</div>
+    </div>
+    <div class="gc-body">${card.desc}</div>
+  `;
+
+  if(onClick && !disabled){
+    div.addEventListener('click', (e) => { e.stopPropagation(); onClick(card, div); });
+  }
+
+  return div;
+}
+
+function renderMiniVisibleCard(card){
+  const div = document.createElement('div');
+  div.className = 'opp-card-visible';
+  const eraBandClass = card.era ? `era-${card.era}` : 'era-none';
+  div.innerHTML = `
+    <div class="mini-era-band ${eraBandClass}">${(card.eraName||'—').substring(0,6)}</div>
+    <div class="mini-icon">${card.icon}</div>
+    <div class="mini-name">${card.name}</div>
+  `;
+  return div;
+}
+
+// ─── CARD ZOOM (in-place visual magnification with action menu) ──
+let zoomedCardEl = null;
+let zoomedCardData = null;
+let zoomedContext = null;
+
+function openCardZoom(card, context, sourceEl){
+  // If already zoomed, ignore
+  closeCardZoom();
+
+  zoomedCardData = card;
+  zoomedContext = context;
+
+  // Clone the card for zoomed state so we don't displace the hand
+  const cloneOpts = {}; // card face same
+  const clone = renderCard(card, cloneOpts);
+  clone.classList.add('zoomed');
+  clone.addEventListener('click', (e) => e.stopPropagation());
+  document.body.appendChild(clone);
+  zoomedCardEl = clone;
+
+  // Show backdrop + action menu
+  document.getElementById('zoom-backdrop').classList.add('visible');
+  const actionsEl = document.getElementById('zoom-actions');
+  actionsEl.innerHTML = '';
+
+  const isPlayerTurn = game.currentTurn === 'player' && game.player.actionsRemaining > 0 && !game.gameOver;
+
+  if(context === 'hand' && isPlayerTurn){
+    if(card.type === 'prophet' || card.type === 'event'){
+      const btn = document.createElement('button');
+      btn.className = 'action-btn primary';
+      btn.textContent = 'Colocar en profecía';
+      btn.onclick = () => { closeCardZoom(); playerPlace(card); };
+      actionsEl.appendChild(btn);
+    }
+    if(card.type === 'blessing'){
+      const btn = document.createElement('button');
+      btn.className = 'action-btn primary';
+      btn.textContent = 'Usar bendición';
+      btn.onclick = () => { closeCardZoom(); playerUseBlessing(card); };
+      actionsEl.appendChild(btn);
+    }
+    if(card.type === 'obstacle'){
+      const btn = document.createElement('button');
+      btn.className = 'action-btn primary';
+      btn.style.background = '#7A1818';
+      btn.style.borderColor = '#D07070';
+      btn.style.color = '#FFE5E5';
+      btn.textContent = '⚡ Lanzar contra la IA';
+      btn.onclick = () => { closeCardZoom(); playerUseObstacle(card); };
+      actionsEl.appendChild(btn);
+    }
+    // All hand cards can swap with market
+    const btnSwap = document.createElement('button');
+    btnSwap.className = 'action-btn';
+    btnSwap.textContent = 'Intercambiar con mercado';
+    btnSwap.onclick = () => { closeCardZoom(); promptMarketSwap(card); };
+    actionsEl.appendChild(btnSwap);
+    // Discard
+    const btnDiscard = document.createElement('button');
+    btnDiscard.className = 'action-btn';
+    btnDiscard.textContent = 'Descartar';
+    btnDiscard.onclick = () => { closeCardZoom(); playerDiscardFromHand(card); };
+    actionsEl.appendChild(btnDiscard);
+  }
+
+  if(context === 'prophecy' && isPlayerTurn){
+    const btn = document.createElement('button');
+    btn.className = 'action-btn';
+    btn.textContent = 'Retirar a la mano';
+    btn.onclick = () => { closeCardZoom(); playerRetrieveFromProphecy(card); };
+    actionsEl.appendChild(btn);
+  }
+
+  if(context === 'market' && isPlayerTurn){
+    const btn = document.createElement('button');
+    btn.className = 'action-btn primary';
+    btn.textContent = 'Intercambiar por una de mi mano';
+    btn.onclick = () => { closeCardZoom(); promptHandSwap(card); };
+    actionsEl.appendChild(btn);
+  }
+
+  const btnClose = document.createElement('button');
+  btnClose.className = 'action-btn';
+  btnClose.textContent = 'Cerrar';
+  btnClose.onclick = closeCardZoom;
+  actionsEl.appendChild(btnClose);
+
+  // Give it a frame to render, then show actions
+  requestAnimationFrame(() => actionsEl.classList.add('visible'));
+}
+
+function closeCardZoom(){
+  if(zoomedCardEl){
+    zoomedCardEl.remove();
+    zoomedCardEl = null;
+  }
+  zoomedCardData = null;
+  zoomedContext = null;
+  document.getElementById('zoom-backdrop').classList.remove('visible');
+  document.getElementById('zoom-actions').classList.remove('visible');
+  document.getElementById('zoom-actions').innerHTML = '';
+}
+
+document.getElementById('zoom-backdrop').addEventListener('click', closeCardZoom);
+
+// ─── SWAP PROMPTS ──────────────────────────────────────────────
+let pendingSwapFromHand = null;
+let pendingSwapFromMarket = null;
+
+function promptMarketSwap(handCard){
+  pendingSwapFromHand = handCard;
+  pendingSwapFromMarket = null;
+  showFloatingMsg('Elige carta del mercado');
+  log(`Selecciona una carta del mercado para intercambiar con <strong>${handCard.name}</strong>.`,'system');
+  render();
+}
+
+function promptHandSwap(marketCard){
+  pendingSwapFromMarket = marketCard;
+  pendingSwapFromHand = null;
+  showFloatingMsg('Elige carta de tu mano');
+  log(`Selecciona una carta de tu mano para intercambiar con <strong>${marketCard.name}</strong>.`,'system');
+  render();
+}
+
+function executeSwap(){
+  if(!pendingSwapFromHand || !pendingSwapFromMarket) return;
+  const handCard = pendingSwapFromHand;
+  const marketCard = pendingSwapFromMarket;
+
+  game.player.hand = game.player.hand.filter(c => c.id !== handCard.id);
+  game.market = game.market.filter(c => c.id !== marketCard.id);
+  game.player.hand.push(marketCard);
+
+  // Cap market at 3 — if already full, discard the returned card instead
+  if(game.market.length < 3){
+    game.market.push(handCard);
+  } else {
+    discardCard(handCard);
+    log(`El mercado está lleno — <strong>${handCard.name}</strong> va al descarte.`,'system');
+  }
+
+  log(`Intercambiaste <strong>${handCard.name}</strong> por <strong>${marketCard.name}</strong>.`,'player');
+  pendingSwapFromHand = null;
+  pendingSwapFromMarket = null;
+  consumeAction();
+  render();
+}
+
+// ─── RENDER ────────────────────────────────────────────────────
+function render(){
+  // Goal badge
+  const goalBadge = document.getElementById('goal-badge');
+  if(goalBadge) goalBadge.textContent = `Meta: ${game.propheciesToWin} profecía${game.propheciesToWin>1?'s':''} para ganar`;
+
+  // Player hand
+  const playerHandEl = document.getElementById('player-hand');
+  playerHandEl.innerHTML = '';
+  game.player.hand.forEach(card => {
+    const canClick = game.currentTurn === 'player' && !game.gameOver;
+    const isSelected = game.selectionMode && game.selectedCards.find(c => c.id === card.id);
+    const cardEl = renderCard(card, {
+      disabled: !canClick,
+      highlight: pendingSwapFromMarket !== null,
+      onClick: canClick ? (c, el) => {
+        if(game.selectionMode){
+          toggleCardSelection(c);
+          return;
+        }
+        if(pendingSwapFromMarket){
+          pendingSwapFromHand = c;
+          executeSwap();
+          return;
+        }
+        openCardZoom(c, 'hand', el);
+      } : null,
+    });
+    if(game.selectionMode){
+      cardEl.classList.add('sel-eligible');
+      if(isSelected){
+        cardEl.classList.add('sel-selected');
+        const check = document.createElement('div');
+        check.className = 'sel-checkmark';
+        const selIdx = game.selectedCards.findIndex(c => c.id === card.id);
+        check.textContent = selIdx + 1;
+        cardEl.style.position = 'relative';
+        cardEl.appendChild(check);
+      }
+    }
+    playerHandEl.appendChild(cardEl);
+  });
+  document.getElementById('player-hand-count').textContent = game.player.hand.length;
+
+  // Opponent hand
+  const oppHandEl = document.getElementById('opp-hand');
+  oppHandEl.innerHTML = '';
+  game.opp.hand.forEach(card => {
+    if(game.player.revealedOpponent){
+      oppHandEl.appendChild(renderMiniVisibleCard(card));
+    } else {
+      oppHandEl.appendChild(renderCard(null, {faceDown: true}));
+    }
+  });
+  document.getElementById('opp-hand-count').textContent = game.opp.hand.length;
+
+  // Market
+  const marketEl = document.getElementById('market');
+  marketEl.innerHTML = '';
+  game.market.forEach(card => {
+    const isPickMarketPhase = multiSwapPhase === 'pick-market';
+    const isPickedForSwap = isPickMarketPhase && multiSwapMarketSelected.find(c => c.id === card.id);
+    const canClick = (game.currentTurn === 'player' && !game.gameOver) || isPickMarketPhase;
+    const highlight = pendingSwapFromHand !== null || isPickedForSwap;
+    const cardEl = renderCard(card, {
+      disabled: !canClick,
+      highlight,
+      onClick: canClick ? (c, el) => {
+        if(isPickMarketPhase){
+          handleMarketSelectForSwap(c);
+          return;
+        }
+        if(pendingSwapFromHand){
+          pendingSwapFromMarket = c;
+          executeSwap();
+          return;
+        }
+        openCardZoom(c, 'market', el);
+      } : null,
+    });
+    if(isPickMarketPhase){
+      cardEl.style.outline = isPickedForSwap
+        ? '3px solid var(--gold)'
+        : '2px dashed rgba(201,168,76,0.5)';
+      cardEl.style.outlineOffset = '2px';
+    }
+    marketEl.appendChild(cardEl);
+  });
+
+  // Player prophecy area
+  const playerProphecyEl = document.getElementById('player-prophecy');
+  playerProphecyEl.innerHTML = '';
+  playerProphecyEl.className = `prophecy-zone${game.player.prophecyArea.length > 0 ? ' has-cards' : ''}`;
+  const pSlots = document.createElement('div');
+  pSlots.className = 'prophecy-slots';
+  game.player.prophecyArea.forEach(card => {
+    const cardEl = renderCard(card, {
+      small: true,
+      onClick: (c, el) => openCardZoom(c, 'prophecy', el),
+    });
+    pSlots.appendChild(cardEl);
+  });
+  for(let i = game.player.prophecyArea.length; i < 3; i++){
+    const empty = document.createElement('div');
+    empty.className = 'prophecy-slot-empty';
+    empty.textContent = `${i+1}`;
+    pSlots.appendChild(empty);
+  }
+  playerProphecyEl.appendChild(pSlots);
+
+  // Player era label
+  const pEraLabel = document.getElementById('player-era-label');
+  if(game.player.prophecyArea.length > 0){
+    const era = game.player.prophecyArea[0].era;
+    const info = ERA_INFO[era];
+    pEraLabel.classList.remove('empty');
+    pEraLabel.style.borderLeftColor = `var(--era-${era}-c)`;
+    pEraLabel.innerHTML = `
+      <span class="era-title" style="color:var(--era-${era}-c)">${info.name}</span>
+      <span class="era-period">${info.period}</span>
+      <span class="era-desc">${info.desc}</span>
+    `;
+  } else {
+    pEraLabel.classList.add('empty');
+    pEraLabel.style.borderLeftColor = 'transparent';
+    pEraLabel.innerHTML = `
+      <span class="era-title">Tu profecía</span>
+      <span class="era-desc">Sin iniciar</span>
+    `;
+  }
+
+  // Opponent prophecy
+  const oppProphecyEl = document.getElementById('opp-prophecy');
+  oppProphecyEl.innerHTML = '';
+  oppProphecyEl.className = `prophecy-zone${game.opp.prophecyArea.length > 0 ? ' has-cards' : ''}`;
+  const oSlots = document.createElement('div');
+  oSlots.className = 'prophecy-slots';
+  game.opp.prophecyArea.forEach(card => {
+    oSlots.appendChild(renderCard(card, {small: true}));
+  });
+  for(let i = game.opp.prophecyArea.length; i < 3; i++){
+    const empty = document.createElement('div');
+    empty.className = 'prophecy-slot-empty';
+    empty.textContent = `${i+1}`;
+    oSlots.appendChild(empty);
+  }
+  oppProphecyEl.appendChild(oSlots);
+
+  const oEraLabel = document.getElementById('opp-era-label');
+  if(game.opp.prophecyArea.length > 0){
+    const era = game.opp.prophecyArea[0].era;
+    const info = ERA_INFO[era];
+    oEraLabel.classList.remove('empty');
+    oEraLabel.style.borderLeftColor = `var(--era-${era}-c)`;
+    oEraLabel.innerHTML = `
+      <span class="era-title" style="color:var(--era-${era}-c)">${info.name}</span>
+      <span class="era-period">${info.period}</span>
+    `;
+  } else {
+    oEraLabel.classList.add('empty');
+    oEraLabel.style.borderLeftColor = 'transparent';
+    oEraLabel.innerHTML = `
+      <span class="era-title">Profecía IA</span>
+      <span class="era-desc">Esperando</span>
+    `;
+  }
+
+  document.getElementById('deck-count').textContent = game.deck.length;
+  document.getElementById('discard-count').textContent = game.discard.length;
+  document.getElementById('player-prophecies').textContent = game.player.completedProphecies.length;
+  document.getElementById('player-souls').textContent = game.player.souls;
+  document.getElementById('opp-prophecies').textContent = game.opp.completedProphecies.length;
+  document.getElementById('opp-souls').textContent = game.opp.souls;
+
+  const ti = document.getElementById('turn-indicator');
+  if(game.currentTurn === 'player'){
+    const actions = game.player.actionsRemaining;
+    let actionText = actions > 0 ? `${actions} ${actions === 1 ? 'acción' : 'acciones'}` : 'Sin acciones';
+    if(game.player.visionActive) actionText += ' · ✦ Visión activa';
+    ti.innerHTML = `Tu turno · ${actionText} <span class="timer-display" id="turn-timer" style="display:none">60</span>`;
+    ti.classList.remove('opp');
+    // Re-sync timer display after innerHTML rebuild
+    if(turnTimerInterval !== null){
+      const t = document.getElementById('turn-timer');
+      t.textContent = turnTimerRemaining;
+      t.style.display = 'inline';
+      if(turnTimerRemaining <= 10) t.classList.add('urgent'); else t.classList.remove('urgent');
+    }
+  } else {
+    ti.innerHTML = `Turno IA · #${game.turnNumber}`;
+    ti.classList.add('opp');
+  }
+
+  document.getElementById('opp-state').textContent = game.currentTurn === 'opp' ? 'Pensando...' : 'Esperando';
+
+  updateActionButtons();
+}
+
+function updateActionButtons(){
+  const isPlayerTurn = game.currentTurn === 'player' && game.started && !game.gameOver;
+  const hasActions = isPlayerTurn && game.player.actionsRemaining > 0;
+  const canDraw = hasActions && game.player.hand.length < (game.HAND_LIMIT + game.handLimitBonus);
+
+  document.getElementById('btn-draw').disabled = !canDraw;
+  document.getElementById('btn-end').disabled = !isPlayerTurn;
+  document.getElementById('btn-renew-market').disabled = !hasActions;
+  document.getElementById('btn-reset-hand').disabled = !hasActions || game.player.hand.length === 0;
+  document.getElementById('btn-discard-prophecy').disabled = !hasActions || game.player.prophecyArea.length === 0;
+  document.getElementById('btn-select-multi').disabled = !hasActions || game.player.hand.length === 0;
+}
+
+// ─── PLAYER ACTIONS ────────────────────────────────────────────
+function playerDraw(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  if(game.player.actionsRemaining <= 0){
+    showFloatingMsg('Sin acciones');
+    return;
+  }
+  if(game.player.hand.length >= game.HAND_LIMIT + game.handLimitBonus){
+    showFloatingMsg('Mano llena');
+    return;
+  }
+  const card = drawFromDeck();
+  if(!card){ log('No hay cartas disponibles.','system'); return; }
+
+  // All cards (including obstacles) now go to hand
+  game.player.hand.push(card);
+  const extraText = card.type === 'obstacle' ? ' (Obstáculo — puedes lanzarlo contra la IA)' : '';
+  log(`Robaste <strong>${card.name}</strong>${extraText}.`,'player');
+  consumeAction();
+  render();
+}
+
+function playerUseObstacle(card){
+  if(!card || card.type !== 'obstacle') return;
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  if(game.player.actionsRemaining <= 0){
+    showFloatingMsg('Sin acciones');
+    return;
+  }
+  game.player.hand = game.player.hand.filter(c => c.id !== card.id);
+  log(`Lanzaste <strong>${card.name}</strong> contra la IA: ${card.desc}`,'player');
+  applyObstacle(card, 'opp');
+  discardCard(card);
+  consumeAction();
+  render();
+}
+
+function consumeAction(){
+  game.player.actionsRemaining--;
+}
+
+function playerPlace(card){
+  if(!card || (card.type !== 'prophet' && card.type !== 'event')) return;
+  if(game.player.prophecyArea.length > 0){
+    const existingEra = game.player.prophecyArea[0].era;
+    if(card.era !== existingEra){
+      showFloatingMsg('Era incorrecta');
+      log(`No puedes colocar <strong>${card.name}</strong>. Tu profecía es de la era <em>${ERA_INFO[existingEra].name}</em>.`,'system');
+      return;
+    }
+  }
+  game.player.hand = game.player.hand.filter(c => c.id !== card.id);
+  game.player.prophecyArea.push(card);
+  log(`Colocaste <strong>${card.name}</strong> en tu área de profecía.`,'player');
+  if(game.player.prophecyArea.length >= 3){
+    completeProphecy('player');
+    game.player.visionActive = false; // consume vision on completion
+    consumeAction();
+    render();
+    return;
+  }
+  // If Vision Profetica is active, this first placement is free, next won't be
+  if(game.player.visionActive){
+    game.player.visionActive = false;
+    log('Visión Profética usada — esta colocación fue gratuita. Puedes colocar una más este turno.','event');
+    showFloatingMsg('Visión usada');
+    render();
+    return;
+  }
+  consumeAction();
+  render();
+}
+
+function playerUseBlessing(card){
+  if(!card || card.type !== 'blessing') return;
+  game.player.hand = game.player.hand.filter(c => c.id !== card.id);
+  discardCard(card);
+  log(`Usaste la bendición <strong>${card.name}</strong>.`,'player');
+
+  if(card.effect === 'double-place'){
+    // Vision opens modal — action consumed on confirm
+    applyBlessing(card, 'player');
+    render();
+    return; // Don't consume action here
+  }
+
+  applyBlessing(card, 'player');
+  consumeAction();
+  render();
+}
+
+function playerRetrieveFromProphecy(card){
+  // If hand is full, prompt to discard one first
+  if(game.player.hand.length >= game.HAND_LIMIT + game.handLimitBonus){
+    openDiscardThenRetrieveModal(card);
+    return;
+  }
+  game.player.prophecyArea = game.player.prophecyArea.filter(c => c.id !== card.id);
+  game.player.hand.push(card);
+  log(`Retiraste <strong>${card.name}</strong> de tu área de profecía.`,'player');
+  consumeAction();
+  render();
+}
+
+// Combined action: discard a hand card THEN retrieve from prophecy (counts as 1 action)
+let pendingRetrieveCard = null;
+function openDiscardThenRetrieveModal(retrieveCard){
+  pendingRetrieveCard = retrieveCard;
+  const modal = document.getElementById('discard-then-retrieve');
+  const cardsEl = document.getElementById('dtr-cards');
+  cardsEl.innerHTML = '';
+  game.player.hand.forEach(c => {
+    const wrap = document.createElement('div');
+    wrap.className = 'peek-card-option';
+    const cardEl = renderCard(c, { onClick: null });
+    wrap.appendChild(cardEl);
+    wrap.onclick = () => executeDiscardThenRetrieve(c);
+    cardsEl.appendChild(wrap);
+  });
+  modal.classList.add('visible');
+}
+function executeDiscardThenRetrieve(handCard){
+  // Discard hand card
+  game.player.hand = game.player.hand.filter(c => c.id !== handCard.id);
+  discardCard(handCard);
+  // Retrieve prophecy card
+  game.player.prophecyArea = game.player.prophecyArea.filter(c => c.id !== pendingRetrieveCard.id);
+  game.player.hand.push(pendingRetrieveCard);
+  log(`Descartaste <strong>${handCard.name}</strong> y retiraste <strong>${pendingRetrieveCard.name}</strong> de tu profecía (1 acción).`,'player');
+  pendingRetrieveCard = null;
+  document.getElementById('discard-then-retrieve').classList.remove('visible');
+  consumeAction();
+  render();
+}
+
+function playerDiscardFromHand(card){
+  game.player.hand = game.player.hand.filter(c => c.id !== card.id);
+  discardCard(card);
+  log(`Descartaste <strong>${card.name}</strong>.`,'player');
+  consumeAction();
+  render();
+}
+
+// NEW v5: Discard entire prophecy area (1 action)
+function playerDiscardProphecy(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  if(game.player.actionsRemaining <= 0){
+    showFloatingMsg('Sin acciones');
+    return;
+  }
+  if(game.player.prophecyArea.length === 0){
+    showFloatingMsg('Profecía vacía');
+    return;
+  }
+  if(!confirm(`¿Descartar las ${game.player.prophecyArea.length} carta(s) de tu profecía en construcción? Esto usa 1 acción.`)) return;
+  const count = game.player.prophecyArea.length;
+  game.player.prophecyArea.forEach(c => discardCard(c));
+  game.player.prophecyArea = [];
+  log(`Descartaste ${count} carta(s) de tu profecía.`,'player');
+  consumeAction();
+  render();
+}
+
+// NEW v5: Reset hand (anti-deadlock) — discard whole hand and draw 3 new
+function playerResetHand(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  if(game.player.actionsRemaining <= 0){
+    showFloatingMsg('Sin acciones');
+    return;
+  }
+  if(!confirm('¿Descartar toda tu mano y robar 3 cartas nuevas? Esto usa 1 acción.')) return;
+  const count = game.player.hand.length;
+  game.player.hand.forEach(c => discardCard(c));
+  game.player.hand = [];
+  // Draw 3 new
+  for(let i = 0; i < 3; i++){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.player.hand.push(c);
+  }
+  log(`Reiniciaste tu mano: descartaste ${count} carta(s) y robaste 3 nuevas.`,'player');
+  consumeAction();
+  render();
+}
+
+// NEW v5: Renew market (1 action)
+function playerRenewMarket(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  if(game.player.actionsRemaining <= 0){
+    showFloatingMsg('Sin acciones');
+    return;
+  }
+  if(!confirm('¿Renovar mercado? Se descartarán las 3 cartas actuales y se repondrán con nuevas. Usa 1 acción.')) return;
+  const count = game.market.length;
+  game.market.forEach(c => discardCard(c));
+  game.market = [];
+  for(let i = 0; i < 3; i++){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.market.push(c);
+  }
+  log(`Renovaste el mercado (${count} cartas antiguas al descarte).`,'player');
+  consumeAction();
+  render();
+}
+
+function playerEndTurn(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  stopTurnTimer();
+  pendingSwapFromHand = null;
+  pendingSwapFromMarket = null;
+  closeCardZoom();
+  exitSelectionMode(); // clean up if still in selection mode
+
+  // Auto-refill hand at end of turn to 3
+  while(game.player.hand.length < game.HAND_LIMIT){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.player.hand.push(c);
+    const extraText = c.type === 'obstacle' ? ' (Obstáculo)' : '';
+    log(`Repones: <strong>${c.name}</strong>${extraText}.`,'player');
+  }
+
+  // Auto-refill market to exactly 3 (never exceed)
+  while(game.market.length < 3){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.market.push(c);
+  }
+  while(game.market.length > 3){ discardCard(game.market.pop()); }
+
+  game.handLimitBonus = 0;
+  game.player.actionsRemaining = 0;
+  game.player.revealedOpponent = false;
+  game.player.visionActive = false; // vision doesn't persist across turns
+  game.currentTurn = 'opp';
+  game.turnNumber++;
+  log('Terminaste tu turno.','player');
+  render();
+  setTimeout(() => runOppTurn(), 800);
+}
+
+// ─── TURN TIMER ────────────────────────────────────────────────
+const TURN_SECONDS = 60;
+let turnTimerInterval = null;
+let turnTimerRemaining = TURN_SECONDS;
+
+function startTurnTimer(){
+  stopTurnTimer();
+  turnTimerRemaining = TURN_SECONDS;
+  const timerEl = document.getElementById('turn-timer');
+  if(!timerEl) return;
+  timerEl.style.display = 'inline';
+  timerEl.textContent = turnTimerRemaining;
+  timerEl.classList.remove('urgent');
+
+  turnTimerInterval = setInterval(() => {
+    turnTimerRemaining--;
+    timerEl.textContent = turnTimerRemaining;
+
+    if(turnTimerRemaining <= 10){
+      timerEl.classList.add('urgent');
+    }
+    if(turnTimerRemaining <= 0){
+      stopTurnTimer();
+      onTurnTimerExpired();
+    }
+  }, 1000);
+}
+
+function stopTurnTimer(){
+  clearInterval(turnTimerInterval);
+  turnTimerInterval = null;
+  const timerEl = document.getElementById('turn-timer');
+  if(timerEl){
+    timerEl.style.display = 'none';
+    timerEl.classList.remove('urgent');
+  }
+}
+
+function onTurnTimerExpired(){
+  if(game.currentTurn !== 'player' || game.gameOver) return;
+  // Close any open modals that might be blocking
+  document.getElementById('fdiscard-backdrop').classList.remove('visible');
+  document.getElementById('steal-backdrop').classList.remove('visible');
+  exitSelectionMode();
+  closeCardZoom();
+  log('⏱ Tiempo agotado — turno perdido.', 'event');
+  showFloatingMsg('¡Tiempo agotado!');
+  // End player turn immediately without refilling actions
+  game.player.actionsRemaining = 0;
+  playerEndTurn();
+}
+
+// Called when it becomes the player's turn again (from AI)
+function startPlayerTurn(){
+  if(game.gameOver) return;
+  game.currentTurn = 'player';
+
+  // Handle skipNextAction from obstacle
+  if(game.player.skipNextAction){
+    game.player.skipNextAction = false;
+    log('Pierdes tu turno por la Persecución.','event');
+    showFloatingMsg('Pierdes turno');
+    render();
+    setTimeout(() => {
+      game.currentTurn = 'opp';
+      game.turnNumber++;
+      setTimeout(() => runOppTurn(), 800);
+    }, 1400);
+    return;
+  }
+
+  game.player.actionsRemaining = 1;
+  log('✦ Tu turno. Tienes 1 acción.','player');
+  render();
+  startTurnTimer();
+}
+
+// ─── BLESSINGS ─────────────────────────────────────────────────
+function applyBlessing(card, who){
+  const subject = who === 'player' ? game.player : game.opp;
+  const subjectName = who === 'player' ? 'Tú' : 'IA';
+
+  switch(card.effect){
+    case 'peek-pick':
+      if(who === 'player'){
+        openPeekPickModal();
+      } else {
+        // AI auto-picks best of 3
+        const peek = [];
+        for(let i = 0; i < 3 && game.deck.length > 0; i++){
+          peek.push(game.deck.pop());
+        }
+        peek.sort((a,b) => b.souls - a.souls);
+        const picked = peek.shift();
+        if(picked){
+          subject.hand.push(picked);
+          log(`La IA tomó <strong>${picked.name}</strong> de las 3 cartas reveladas.`,'opp');
+        }
+        peek.forEach(c => discardCard(c));
+      }
+      break;
+    case 'extra-action':
+      subject.actionsRemaining = (subject.actionsRemaining || 0) + 2;
+      if(who === 'player'){
+        log('Lluvia Temprana: +2 movimientos este turno.','event');
+        showFloatingMsg('+2 movimientos');
+      } else {
+        log('La IA ganó 2 movimientos adicionales.','opp');
+      }
+      break;
+    case 'double-place':
+      if(who === 'player'){
+        // Opción B: consume action, opens modal immediately for 2-card placement
+        openVisionModal();
+        // Don't consume action here — openVisionModal handles it on confirm
+      } else {
+        // AI: place up to 2 cards of best era immediately
+        const eras = ['patriarcal','exodo','cautiverio','cristo','fin'];
+        let targetEra = null;
+        if(subject.prophecyArea.length > 0){
+          targetEra = subject.prophecyArea[0].era;
+        } else {
+          // Pick era with most cards
+          const counts = {};
+          subject.hand.forEach(c => { if(c.era)(counts[c.era]=(counts[c.era]||0)+1); });
+          targetEra = Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];
+        }
+        if(targetEra){
+          const placeable = subject.hand.filter(c => (c.type==='prophet'||c.type==='event') && c.era===targetEra).slice(0,2);
+          placeable.forEach(c => {
+            subject.hand = subject.hand.filter(x => x.id !== c.id);
+            subject.prophecyArea.push(c);
+            log(`Visión Profética: La IA colocó <strong>${c.name}</strong>.`,'opp');
+          });
+          if(subject.prophecyArea.length >= 3) completeProphecy('opp');
+        }
+        log('La IA activó Visión Profética.','opp');
+      }
+      break;
+    case 'retrieve-prophecy':
+      if(subject.prophecyArea.length > 0){
+        if(subject.hand.length >= game.HAND_LIMIT + game.handLimitBonus){
+          log(`${subjectName} no tiene espacio en la mano para recuperar.`,'system');
+        } else {
+          const retrieved = subject.prophecyArea.pop();
+          subject.hand.push(retrieved);
+          log(`${subjectName} recuperó <strong>${retrieved.name}</strong> de su profecía.`, who);
+        }
+      } else {
+        log(`${subjectName} no tiene cartas en profecía para recuperar.`,'system');
+      }
+      break;
+    case 'reveal':
+      if(who === 'player'){
+        openOpponentHandReveal();
+      } else {
+        log('La IA analiza tu mano momentáneamente.','opp');
+      }
+      break;
+    case 'shield':
+      subject.shield = true;
+      log(`${subjectName} ${who === 'player' ? 'estás' : 'está'} protegido del próximo obstáculo.`,'event');
+      if(who === 'player') showFloatingMsg('Escudo activo');
+      break;
+    case 'recover':
+      if(game.discard.length > 0){
+        if(subject.hand.length >= game.HAND_LIMIT + game.handLimitBonus){
+          log(`${subjectName} no tiene espacio en la mano para recuperar.`,'system');
+        } else {
+          const recovered = game.discard.pop();
+          subject.hand.push(recovered);
+          log(`${subjectName} recuperó <strong>${recovered.name}</strong> del descarte.`, who);
+        }
+      } else {
+        log('El descarte está vacío.','system');
+      }
+      break;
+  }
+}
+
+// ─── OBSTÁCULOS (ahora son armas contra el rival) ──────────────
+function applyObstacle(card, targetWho){
+  const target = targetWho === 'player' ? game.player : game.opp;
+  const targetName = targetWho === 'player' ? 'Tú' : 'La IA';
+
+  showObstacleAlert(card, targetWho);
+
+  // Shield check first
+  if(target.shield){
+    target.shield = false;
+    log(`El escudo ${targetWho === 'player' ? 'tuyo' : 'de la IA'} anuló <strong>${card.name}</strong>.`,'event');
+    return;
+  }
+
+  switch(card.effect){
+    case 'force-discard':
+      if(target.hand.length > 0){
+        if(targetWho === 'player'){
+          // Player chooses which card to discard — open modal
+          openForceDiscardModal(target);
+          return; // modal handles the rest, no further processing
+        } else {
+          // AI discards automatically (best strategy: discard lowest-soul card)
+          const sorted = [...target.hand].sort((a,b) => a.souls - b.souls);
+          const d = sorted[0];
+          target.hand = target.hand.filter(c => c.id !== d.id);
+          discardCard(d);
+          // Intentionally vague — rival doesn't see what you discarded
+          log('La IA descartó una carta de su mano.', 'opp');
+        }
+      } else {
+        log(`${targetName} no tenía cartas para descartar.`,'system');
+      }
+      break;
+
+    case 'steal-hand':
+      if(target.hand.length > 0){
+        const attackerWho = targetWho === 'player' ? 'opp' : 'player';
+        const attacker = attackerWho === 'player' ? game.player : game.opp;
+        const attackerName = attackerWho === 'player' ? 'Tú' : 'La IA';
+        const bonus = attackerWho === 'player' ? game.handLimitBonus : 0;
+
+        if(attackerWho === 'player'){
+          // Player steals interactively — open the pick modal
+          openStealModal(target, targetWho, attacker, bonus);
+          // Do NOT consume action here — modal callback does it
+          return; // exit early, modal handles the rest
+        } else {
+          // AI steals automatically
+          if(attacker.hand.length >= game.HAND_LIMIT + bonus){
+            log(`${attackerName} no tiene espacio, la carta robada se descarta.`,'system');
+            const idx = Math.floor(Math.random() * target.hand.length);
+            const d = target.hand[idx];
+            target.hand.splice(idx, 1);
+            discardCard(d);
+          } else {
+            const idx = Math.floor(Math.random() * target.hand.length);
+            const stolen = target.hand[idx];
+            target.hand.splice(idx, 1);
+            attacker.hand.push(stolen);
+            log(`${attackerName} robó <strong>${stolen.name}</strong> de ${targetWho === 'player' ? 'tu' : 'la'} mano.`, attackerWho);
+          }
+        }
+      } else {
+        log(`${targetName} no tenía cartas para robar.`,'system');
+      }
+      break;
+
+    case 'skip-action':
+      target.skipNextAction = true;
+      log(`${targetName} perderá su próximo turno.`,'event');
+      break;
+
+    case 'disrupt-prophecy':
+      if(target.prophecyArea.length > 0){
+        const removed = target.prophecyArea.pop();
+        const insertAt = Math.floor(Math.random() * (game.deck.length + 1));
+        game.deck.splice(insertAt, 0, removed);
+        log(`${targetName} perdió <strong>${removed.name}</strong> de su profecía (regresó al mazo).`, targetWho);
+      } else {
+        log(`${targetName} no tenía profecía en construcción. El obstáculo no tuvo efecto.`,'system');
+      }
+      break;
+  }
+}
+
+// ─── STEAL MODAL (Gran Apostasía — jugador elige carta oculta) ──
+function openStealModal(target, targetWho, attacker, bonus){
+  const slotsEl = document.getElementById('steal-cards');
+  slotsEl.innerHTML = '';
+
+  target.hand.forEach((card, idx) => {
+    const slot = document.createElement('div');
+    slot.className = 'steal-card-slot';
+    slot.title = 'Haz clic para robar esta carta';
+    slot.addEventListener('click', () => resolveSteal(card, idx, slot, target, targetWho, attacker, bonus));
+    slotsEl.appendChild(slot);
+  });
+
+  document.getElementById('steal-backdrop').classList.add('visible');
+}
+
+function resolveSteal(card, idx, slotEl, target, targetWho, attacker, bonus){
+  // Disable all other slots immediately
+  document.querySelectorAll('.steal-card-slot').forEach(s => {
+    s.style.pointerEvents = 'none';
+    s.style.opacity = s === slotEl ? '1' : '0.3';
+  });
+
+  // Reveal the chosen card inside the slot
+  slotEl.classList.add('picked');
+  slotEl.innerHTML = '';
+  const cardEl = renderCard(card, { onClick: null });
+  cardEl.style.width = '100%';
+  cardEl.style.height = '100%';
+  cardEl.style.borderRadius = '5px';
+  slotEl.appendChild(cardEl);
+
+  // Remove from target hand
+  target.hand = target.hand.filter(c => c.id !== card.id);
+
+  setTimeout(() => {
+    document.getElementById('steal-backdrop').classList.remove('visible');
+
+    if(attacker.hand.length >= game.HAND_LIMIT + bonus){
+      log(`Tu mano está llena. <strong>${card.name}</strong> va al descarte.`, 'system');
+      discardCard(card);
+    } else {
+      attacker.hand.push(card);
+      log(`Robaste <strong>${card.name}</strong> de la mano de la IA.`, 'player');
+    }
+    render();
+  }, 1200);
+}
+
+// ─── FORCE-DISCARD MODAL (Tiempo de Angustia — jugador elige) ──
+function openForceDiscardModal(target){
+  stopTurnTimer(); // pause timer while modal is open
+  const cardsEl = document.getElementById('fdiscard-cards');
+  cardsEl.innerHTML = '';
+  target.hand.forEach(card => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'cursor:pointer;border:2px solid transparent;border-radius:8px;padding:3px;transition:all 0.2s';
+    wrap.addEventListener('mouseenter', () => { wrap.style.borderColor = '#E8A060'; wrap.style.transform = 'translateY(-5px)'; });
+    wrap.addEventListener('mouseleave', () => { wrap.style.borderColor = 'transparent'; wrap.style.transform = ''; });
+    const cardEl = renderCard(card, { onClick: null });
+    wrap.appendChild(cardEl);
+    wrap.addEventListener('click', () => {
+      target.hand = target.hand.filter(c => c.id !== card.id);
+      discardCard(card);
+      // Log vaguely — rival doesn't see what the player discarded
+      log('Descartaste una carta por Tiempo de Angustia.', 'player');
+      document.getElementById('fdiscard-backdrop').classList.remove('visible');
+      startTurnTimer(); // resume timer
+      render();
+    });
+    cardsEl.appendChild(wrap);
+  });
+  document.getElementById('fdiscard-backdrop').classList.add('visible');
+}
+
+// ─── PEEK-PICK MODAL (Guía del Espíritu) ──────────────────
+let peekPickCards = [];
+// ─── VISION PROFÉTICA MODAL ────────────────────────────────────
+let visionSelected = [];
+let visionCardInProgress = null; // the blessing card being used
+
+function openVisionModal(){
+  visionSelected = [];
+  const existingEra = game.player.prophecyArea.length > 0 ? game.player.prophecyArea[0].era : null;
+
+  // Filter hand: only prophet/event that match era if prophecy started
+  const eligible = game.player.hand.filter(c => {
+    if(c.type !== 'prophet' && c.type !== 'event') return false;
+    if(existingEra && c.era !== existingEra) return false;
+    return true;
+  });
+
+  if(eligible.length === 0){
+    log('No tienes cartas de profeta/evento compatibles con Visión Profética.','system');
+    showFloatingMsg('Sin cartas compatibles');
+    // Blessing was already removed from hand but action not yet consumed — refund
+    return;
+  }
+
+  const cardsEl = document.getElementById('vision-cards');
+  cardsEl.innerHTML = '';
+  const hintEl = document.getElementById('vision-hint');
+
+  if(existingEra){
+    hintEl.textContent = `Solo cartas de la era ${ERA_INFO[existingEra].name}. Selecciona 1 o 2.`;
+  } else {
+    hintEl.textContent = 'Selecciona hasta 2 cartas de la MISMA era para colocar.';
+  }
+
+  eligible.forEach(card => {
+    const wrap = document.createElement('div');
+    wrap.className = 'vision-card-option';
+    wrap.dataset.cardId = card.id;
+    const badge = document.createElement('div');
+    badge.className = 'vision-badge';
+    badge.textContent = '✓';
+    const cardEl = renderCard(card, { onClick: null });
+    wrap.appendChild(cardEl);
+    wrap.appendChild(badge);
+    wrap.onclick = () => toggleVisionCard(card, wrap, eligible, existingEra);
+    cardsEl.appendChild(wrap);
+  });
+
+  document.getElementById('vision-confirm').disabled = true;
+  document.getElementById('vision-backdrop').classList.add('visible');
+}
+
+function toggleVisionCard(card, wrap, eligible, existingEra){
+  const alreadySelected = visionSelected.find(c => c.id === card.id);
+
+  if(alreadySelected){
+    // Deselect
+    visionSelected = visionSelected.filter(c => c.id !== card.id);
+    wrap.classList.remove('selected');
+  } else {
+    // Check era constraint: all selected must be same era
+    if(visionSelected.length > 0 && visionSelected[0].era !== card.era){
+      showFloatingMsg('Misma era solamente');
+      return;
+    }
+    // Max 2 selected
+    if(visionSelected.length >= 2){
+      showFloatingMsg('Máximo 2 cartas');
+      return;
+    }
+    // Check if adding this card would exceed prophecy capacity (max 3 total)
+    const prophecySlotsLeft = 3 - game.player.prophecyArea.length;
+    if(visionSelected.length >= prophecySlotsLeft){
+      showFloatingMsg(`Solo ${prophecySlotsLeft} lugar(es) disponibles`);
+      return;
+    }
+    visionSelected.push(card);
+    wrap.classList.add('selected');
+  }
+
+  document.getElementById('vision-confirm').disabled = visionSelected.length === 0;
+
+  // Update numbers on badges
+  document.querySelectorAll('.vision-card-option').forEach(w => {
+    const id = w.dataset.cardId;
+    const idx = visionSelected.findIndex(c => c.id === id);
+    const badge = w.querySelector('.vision-badge');
+    if(badge){
+      badge.textContent = idx >= 0 ? (idx + 1) : '✓';
+    }
+  });
+}
+
+function confirmVision(){
+  if(visionSelected.length === 0) return;
+  document.getElementById('vision-backdrop').classList.remove('visible');
+
+  let prophecyCompleted = false;
+  visionSelected.forEach(card => {
+    // Era check
+    if(game.player.prophecyArea.length > 0 && game.player.prophecyArea[0].era !== card.era){
+      log(`No se pudo colocar <strong>${card.name}</strong> (era incorrecta).`,'system');
+      return;
+    }
+    game.player.hand = game.player.hand.filter(c => c.id !== card.id);
+    game.player.prophecyArea.push(card);
+    log(`Visión Profética: colocaste <strong>${card.name}</strong> en tu profecía.`,'player');
+    if(game.player.prophecyArea.length >= 3 && !prophecyCompleted){
+      prophecyCompleted = true;
+      completeProphecy('player');
+    }
+  });
+
+  visionSelected = [];
+  consumeAction(); // Vision costs 1 action total (was removed from hand before opening modal)
+  render();
+}
+
+// ─── MULTI-SELECT MODE ─────────────────────────────────────────
+function enterSelectionMode(){
+  if(!game.started || game.gameOver || game.currentTurn !== 'player') return;
+  if(game.player.actionsRemaining <= 0){ showFloatingMsg('Sin acciones'); return; }
+  game.selectionMode = true;
+  game.selectedCards = [];
+  document.getElementById('sel-bar').classList.add('visible');
+  document.getElementById('btn-select-multi').textContent = '☑ Seleccionando...';
+  document.getElementById('btn-select-multi').classList.add('active');
+  updateSelBar();
+  render();
+}
+
+function exitSelectionMode(){
+  game.selectionMode = false;
+  game.selectedCards = [];
+  // Reset multi-swap state if active
+  multiSwapPhase = null;
+  multiSwapHandCards = [];
+  multiSwapMarketSelected = [];
+  document.getElementById('sel-btn-market').textContent = '↔ Con mercado';
+  document.getElementById('sel-btn-market').onclick = multiSwapWithMarket;
+  document.getElementById('sel-bar').classList.remove('visible');
+  document.getElementById('btn-select-multi').textContent = '☐ Selección múltiple';
+  document.getElementById('btn-select-multi').classList.remove('active');
+  render();
+}
+
+function toggleCardSelection(card){
+  if(!game.selectionMode) return;
+  const idx = game.selectedCards.findIndex(c => c.id === card.id);
+  if(idx >= 0){
+    game.selectedCards.splice(idx, 1);
+  } else {
+    if(game.selectedCards.length >= 3){
+      showFloatingMsg('Máximo 3 cartas');
+      return;
+    }
+    game.selectedCards.push(card);
+  }
+  updateSelBar();
+  render();
+}
+
+function updateSelBar(){
+  const n = game.selectedCards.length;
+  document.getElementById('sel-bar-info').textContent =
+    n === 0 ? 'Haz click en cartas para seleccionar' :
+    `${n} carta${n>1?'s':''} seleccionada${n>1?'s':''}`;
+
+  const canAct = n > 0;
+  const canMarket = canAct && game.market.length >= n;
+  document.getElementById('sel-btn-market').disabled = !canMarket;
+  document.getElementById('sel-btn-deck').disabled = !canAct;
+}
+
+// State for multi-swap market selection step
+let multiSwapPhase = null; // null | 'pick-market'
+let multiSwapHandCards = [];
+let multiSwapMarketSelected = [];
+
+function multiSwapWithMarket(){
+  if(game.selectedCards.length === 0) return;
+  const n = game.selectedCards.length;
+  if(game.market.length < n){
+    showFloatingMsg(`El mercado solo tiene ${game.market.length} carta(s)`);
+    return;
+  }
+
+  // Save hand cards and switch to market-picking phase
+  multiSwapHandCards = [...game.selectedCards];
+  multiSwapMarketSelected = [];
+  multiSwapPhase = 'pick-market';
+
+  // Update sel bar to "pick from market" mode
+  document.getElementById('sel-bar-info').textContent =
+    `Elige ${n} carta${n>1?'s':''} del mercado para recibir`;
+  document.getElementById('sel-btn-market').disabled = true;
+  document.getElementById('sel-btn-deck').disabled = true;
+
+  // Clear current card selections visually, re-render to show market as selectable
+  game.selectedCards = [];
+  render();
+  showFloatingMsg(`Elige ${n} carta${n>1?'s':''} del mercado`);
+}
+
+function handleMarketSelectForSwap(card){
+  if(multiSwapPhase !== 'pick-market') return;
+  const n = multiSwapHandCards.length;
+  const alreadyIdx = multiSwapMarketSelected.findIndex(c => c.id === card.id);
+  if(alreadyIdx >= 0){
+    multiSwapMarketSelected.splice(alreadyIdx, 1);
+  } else {
+    if(multiSwapMarketSelected.length >= n){
+      showFloatingMsg(`Ya seleccionaste ${n} carta${n>1?'s':''}`);
+      return;
+    }
+    multiSwapMarketSelected.push(card);
+  }
+
+  // Update info text
+  const remaining = n - multiSwapMarketSelected.length;
+  if(remaining > 0){
+    document.getElementById('sel-bar-info').textContent =
+      `Elige ${remaining} carta${remaining>1?'s':''} más del mercado`;
+  } else {
+    document.getElementById('sel-bar-info').textContent = `✓ Listo — confirma el intercambio`;
+    document.getElementById('sel-btn-market').textContent = '✓ Confirmar';
+    document.getElementById('sel-btn-market').disabled = false;
+    document.getElementById('sel-btn-market').onclick = executeMultiSwapWithMarket;
+  }
+  render();
+}
+
+function executeMultiSwapWithMarket(){
+  const n = multiSwapHandCards.length;
+  const fromHand = multiSwapHandCards;
+  const fromMarket = multiSwapMarketSelected;
+
+  // Remove selected from hand
+  game.player.hand = game.player.hand.filter(c => !fromHand.find(s => s.id === c.id));
+  // Remove picked from market
+  game.market = game.market.filter(c => !fromMarket.find(m => m.id === c.id));
+  // Add market picks to hand
+  fromMarket.forEach(c => game.player.hand.push(c));
+  // Add hand cards to market — but cap market at 3
+  const availableSlots = 3 - game.market.length;
+  const toMarket = fromHand.slice(0, availableSlots);
+  const toDiscard = fromHand.slice(availableSlots);
+  toMarket.forEach(c => game.market.push(c));
+  toDiscard.forEach(c => discardCard(c));
+
+  if(toDiscard.length > 0){
+    log(`Intercambiaste ${n} carta${n>1?'s':''} con el mercado (${toDiscard.length} al descarte, mercado lleno).`,'player');
+  } else {
+    log(`Intercambiaste ${n} carta${n>1?'s':''} con el mercado.`,'player');
+  }
+
+  // Reset multi-swap state
+  multiSwapPhase = null;
+  multiSwapHandCards = [];
+  multiSwapMarketSelected = [];
+  // Reset button text/handler
+  document.getElementById('sel-btn-market').textContent = '↔ Con mercado';
+  document.getElementById('sel-btn-market').onclick = multiSwapWithMarket;
+  exitSelectionMode();
+  consumeAction();
+  render();
+}
+
+function multiSwapWithDeck(){
+  if(game.selectedCards.length === 0) return;
+  const n = game.selectedCards.length;
+  const fromHand = [...game.selectedCards];
+
+  // Discard selected hand cards
+  game.player.hand = game.player.hand.filter(c => !fromHand.find(s => s.id === c.id));
+  fromHand.forEach(c => discardCard(c));
+
+  // Draw N new cards
+  let drawn = 0;
+  for(let i = 0; i < n; i++){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.player.hand.push(c);
+    drawn++;
+  }
+
+  log(`Descartaste ${n} carta${n>1?'s':''} y robaste ${drawn} nueva${drawn>1?'s':''} del mazo.`,'player');
+  exitSelectionMode();
+  consumeAction();
+  render();
+}
+
+function openPeekPickModal(){
+  peekPickCards = [];
+  for(let i = 0; i < 3 && game.deck.length > 0; i++){
+    peekPickCards.push(game.deck.pop());
+  }
+  if(peekPickCards.length === 0){
+    log('El mazo está vacío. No hay cartas para revelar.','system');
+    return;
+  }
+  const cardsEl = document.getElementById('peek-cards');
+  cardsEl.innerHTML = '';
+  peekPickCards.forEach(card => {
+    const wrap = document.createElement('div');
+    wrap.className = 'peek-card-option';
+    const cardEl = renderCard(card, { onClick: null });
+    wrap.appendChild(cardEl);
+    wrap.onclick = () => resolvePeekPick(card);
+    cardsEl.appendChild(wrap);
+  });
+  document.getElementById('peek-backdrop').classList.add('visible');
+}
+
+function resolvePeekPick(chosenCard){
+  if(game.player.hand.length >= game.HAND_LIMIT + game.handLimitBonus){
+    log('Tu mano está llena. La carta elegida va al descarte.','system');
+    discardCard(chosenCard);
+  } else {
+    game.player.hand.push(chosenCard);
+    log(`Tomaste <strong>${chosenCard.name}</strong> con Guía del Espíritu.`,'player');
+  }
+  peekPickCards.forEach(c => {
+    if(c.id !== chosenCard.id) discardCard(c);
+  });
+  peekPickCards = [];
+  document.getElementById('peek-backdrop').classList.remove('visible');
+  render();
+}
+
+// ─── REVEAL MODAL (Sabiduría) ─────────────────────────────
+function openOpponentHandReveal(){
+  const cardsEl = document.getElementById('reveal-cards');
+  cardsEl.innerHTML = '';
+  if(game.opp.hand.length === 0){
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--text-muted);font-style:italic;font-size:0.9rem';
+    msg.textContent = 'La mano de la IA está vacía.';
+    cardsEl.appendChild(msg);
+  } else {
+    game.opp.hand.forEach(card => {
+      cardsEl.appendChild(renderCard(card, { onClick: null }));
+    });
+  }
+  document.getElementById('reveal-backdrop').classList.add('visible');
+}
+
+// ─── COIN FLIP (carta más antigua gana) ──────────────────
+const ERA_ORDER = ['patriarcal', 'exodo', 'cautiverio', 'cristo', 'fin'];
+
+function openCoinFlip(){
+  document.getElementById('coin-slot-player').innerHTML = '<div class="coin-card-placeholder">?</div>';
+  document.getElementById('coin-slot-opp').innerHTML = '<div class="coin-card-placeholder">?</div>';
+  document.getElementById('coin-result').innerHTML = '&nbsp;';
+  document.getElementById('coin-label-player').classList.remove('winner');
+  document.getElementById('coin-label-opp').classList.remove('winner');
+  const actionsEl = document.getElementById('coin-actions');
+  actionsEl.innerHTML = '<button class="action-btn primary" id="btn-coin-draw">Sacar cartas</button>';
+  document.getElementById('btn-coin-draw').addEventListener('click', doCoinDraw);
+
+  // Sync goal buttons to current propheciesToWin value
+  document.querySelectorAll('.coin-goal-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.n) === game.propheciesToWin);
+  });
+
+  document.getElementById('coin-backdrop').classList.add('visible');
+}
+
+function doCoinDraw(){
+  // Find 2 cards with valid eras that are different
+  const usedCards = [];
+  let playerCard = null, oppCard = null;
+  let safety = 0;
+
+  while((!playerCard || !oppCard || !playerCard.era || !oppCard.era || playerCard.era === oppCard.era) && safety < 30){
+    safety++;
+    if(game.deck.length < 2){
+      if(game.discard.length > 0){
+        game.deck = shuffle(game.deck.concat(game.discard));
+        game.discard = [];
+      } else break;
+    }
+    if(!playerCard || !playerCard.era){
+      if(playerCard) usedCards.push(playerCard);
+      playerCard = game.deck.pop();
+    }
+    if(!oppCard || !oppCard.era){
+      if(oppCard) usedCards.push(oppCard);
+      oppCard = game.deck.pop();
+    }
+    if(playerCard && oppCard && playerCard.era === oppCard.era){
+      // Same era — both back, redraw
+      usedCards.push(playerCard, oppCard);
+      playerCard = null;
+      oppCard = null;
+    }
+  }
+
+  // Put all tried cards back into deck and shuffle
+  usedCards.forEach(c => game.deck.push(c));
+
+  if(!playerCard || !oppCard || !playerCard.era || !oppCard.era){
+    log('No fue posible resolver el duelo. Inicias tú por defecto.','system');
+    document.getElementById('coin-backdrop').classList.remove('visible');
+    afterCoinFlip('player');
+    return;
+  }
+
+  // Show the cards
+  const slotP = document.getElementById('coin-slot-player');
+  const slotO = document.getElementById('coin-slot-opp');
+  slotP.innerHTML = '';
+  slotO.innerHTML = '';
+  const pEl = renderCard(playerCard, { onClick: null });
+  const oEl = renderCard(oppCard, { onClick: null });
+  pEl.style.animation = 'revealCard 0.5s ease-out';
+  oEl.style.animation = 'revealCard 0.5s ease-out';
+  slotP.appendChild(pEl);
+  slotO.appendChild(oEl);
+
+  const pIdx = ERA_ORDER.indexOf(playerCard.era);
+  const oIdx = ERA_ORDER.indexOf(oppCard.era);
+  let starter, resultText;
+  if(pIdx < oIdx){
+    starter = 'player';
+    resultText = `Tu carta es más antigua — ¡Inicias tú!`;
+    document.getElementById('coin-label-player').classList.add('winner');
+  } else {
+    starter = 'opp';
+    resultText = `La carta de la IA es más antigua — Inicia la IA.`;
+    document.getElementById('coin-label-opp').classList.add('winner');
+  }
+  document.getElementById('coin-result').textContent = resultText;
+
+  // Put the drawn cards back into deck
+  setTimeout(() => {
+    game.deck.push(playerCard);
+    game.deck.push(oppCard);
+    game.deck = shuffle(game.deck);
+  }, 150);
+
+  const actionsEl = document.getElementById('coin-actions');
+  actionsEl.innerHTML = '<button class="action-btn primary" id="btn-coin-continue">Continuar</button>';
+  document.getElementById('btn-coin-continue').addEventListener('click', () => {
+    document.getElementById('coin-backdrop').classList.remove('visible');
+    afterCoinFlip(starter);
+  });
+}
+
+function afterCoinFlip(starter){
+  startGameWithAnimation(starter);
+}
+
+function completeProphecy(who){
+  const subject = who === 'player' ? game.player : game.opp;
+  const subjectName = who === 'player' ? 'Tú' : 'La IA';
+  const eraName = subject.prophecyArea[0].eraName;
+  const totalSouls = subject.prophecyArea.reduce((s,c) => s + c.souls, 0);
+  subject.completedProphecies.push({era: subject.prophecyArea[0].era, cards: [...subject.prophecyArea], souls: totalSouls});
+  subject.souls += totalSouls;
+  subject.prophecyArea.forEach(c => discardCard(c));
+  subject.prophecyArea = [];
+  log(`✦ <strong>${subjectName} completó la profecía de ${eraName}</strong> (+${totalSouls} almas)`,'event');
+  showFloatingMsg(`¡${eraName} completada!`);
+  const area = document.getElementById(who === 'player' ? 'player-prophecy' : 'opp-prophecy');
+  area.classList.add('highlight');
+  setTimeout(() => area.classList.remove('highlight'), 1200);
+  if(subject.completedProphecies.length >= game.propheciesToWin){
+    setTimeout(() => endGame(who), 1400);
+  }
+}
+
+// ─── AI TURN ───────────────────────────────────────────────────
+function runOppTurn(){
+  if(game.gameOver) return;
+  game.player.revealedOpponent = false;
+
+  // Handle skipNextAction
+  if(game.opp.skipNextAction){
+    game.opp.skipNextAction = false;
+    log('La IA pierde su turno por la Persecución.','event');
+    showFloatingMsg('IA pierde turno');
+    setTimeout(() => {
+      game.turnNumber++;
+      startPlayerTurn();
+    }, 1400);
+    return;
+  }
+
+  log('Turno de la IA.','opp');
+
+  setTimeout(() => {
+    // IA auto-fills up to HAND_LIMIT — obstacles now go to hand
+    while(game.opp.hand.length < game.HAND_LIMIT){
+      const c = drawFromDeck();
+      if(!c) break;
+      game.opp.hand.push(c);
+      if(c.type === 'obstacle'){
+        log(`La IA robó un obstáculo.`,'opp');
+      }
+    }
+    render();
+    setTimeout(() => oppDecideAction(), 700);
+  }, 500);
+}
+
+function oppDecideAction(){
+  if(game.gameOver) return;
+  const hand = game.opp.hand;
+  const prophecy = game.opp.prophecyArea;
+  const diff = game.difficulty;
+  let acted = false;
+
+  // Helper: count era cards in hand
+  const countEraInHand = (era) => hand.filter(c => (c.type === 'prophet' || c.type === 'event') && c.era === era).length;
+
+  // Priority 1: Complete prophecy (has 2, needs 3rd) — ALL difficulties
+  if(prophecy.length === 2){
+    const targetEra = prophecy[0].era;
+    const matching = hand.find(c => (c.type === 'prophet' || c.type === 'event') && c.era === targetEra);
+    if(matching){ oppPlaceCard(matching); acted = true; }
+  }
+
+  // Priority 2: Use Visión Profética if AI has 1 in prophecy and 2+ of same era in hand — NORMAL+
+  if(!acted && diff !== 'facil' && prophecy.length === 1){
+    const vision = hand.find(c => c.type === 'blessing' && c.effect === 'double-place');
+    if(vision){
+      const eraCount = countEraInHand(prophecy[0].era);
+      if(eraCount >= 2){
+        game.opp.hand = game.opp.hand.filter(c => c.id !== vision.id);
+        log(`La IA usó <strong>${vision.name}</strong>.`,'opp');
+        applyBlessing(vision, 'opp');
+        discardCard(vision);
+        // Now place first card and vision will trigger second
+        const first = hand.find(c => (c.type === 'prophet' || c.type === 'event') && c.era === prophecy[0].era);
+        if(first){ oppPlaceCard(first); }
+        acted = true;
+      }
+    }
+  }
+  // Vision at start of prophecy — DIFÍCIL: tries to start with 2 simultaneous
+  if(!acted && diff === 'dificil' && prophecy.length === 0){
+    const vision = hand.find(c => c.type === 'blessing' && c.effect === 'double-place');
+    if(vision){
+      // Find era where AI has 2+
+      const eras = ['patriarcal','exodo','cautiverio','cristo','fin'];
+      const bestEra = eras.find(e => countEraInHand(e) >= 2);
+      if(bestEra){
+        game.opp.hand = game.opp.hand.filter(c => c.id !== vision.id);
+        log(`La IA usó <strong>${vision.name}</strong>.`,'opp');
+        applyBlessing(vision, 'opp');
+        discardCard(vision);
+        const first = hand.filter(c => (c.type === 'prophet' || c.type === 'event') && c.era === bestEra)
+                          .sort((a,b) => b.souls - a.souls)[0];
+        if(first){ oppPlaceCard(first); }
+        acted = true;
+      }
+    }
+  }
+
+  // Priority 3: Disrupt player if about to complete — NORMAL+ uses; FÁCIL sometimes skips
+  if(!acted && game.player.prophecyArea.length === 2){
+    const disrupt = hand.find(c => c.type === 'obstacle' && c.effect === 'disrupt-prophecy');
+    if(disrupt && (diff !== 'facil' || Math.random() < 0.4)){
+      game.opp.hand = game.opp.hand.filter(c => c.id !== disrupt.id);
+      log(`La IA lanzó <strong>${disrupt.name}</strong> contra ti.`,'opp');
+      applyObstacle(disrupt, 'player');
+      discardCard(disrupt);
+      acted = true;
+    }
+  }
+
+  // Priority 4: Steal when near completion — NORMAL+
+  if(!acted && diff !== 'facil' && prophecy.length === 2){
+    const steal = hand.find(c => c.type === 'obstacle' && c.effect === 'steal-hand');
+    if(steal && game.player.hand.length > 0){
+      game.opp.hand = game.opp.hand.filter(c => c.id !== steal.id);
+      log(`La IA lanzó <strong>${steal.name}</strong> contra ti.`,'opp');
+      applyObstacle(steal, 'player');
+      discardCard(steal);
+      acted = true;
+    }
+  }
+
+  // Priority 5: Continue existing prophecy
+  if(!acted && prophecy.length === 1){
+    const targetEra = prophecy[0].era;
+    const matching = hand.find(c => (c.type === 'prophet' || c.type === 'event') && c.era === targetEra);
+    if(matching){ oppPlaceCard(matching); acted = true; }
+  }
+
+  // Priority 6: Start new prophecy
+  if(!acted && prophecy.length === 0){
+    const eraCounts = {};
+    hand.forEach(c => {
+      if((c.type === 'prophet' || c.type === 'event') && c.era){
+        eraCounts[c.era] = (eraCounts[c.era] || 0) + 1;
+      }
+    });
+    const bestEra = Object.keys(eraCounts).sort((a,b) => eraCounts[b] - eraCounts[a])[0];
+    if(bestEra){
+      const candidate = hand.filter(c => (c.type === 'prophet' || c.type === 'event') && c.era === bestEra)
+                            .sort((a,b) => b.souls - a.souls)[0];
+      if(candidate){ oppPlaceCard(candidate); acted = true; }
+    }
+  }
+
+  // Priority 7: Harassment obstacles — DIFÍCIL is most aggressive
+  if(!acted){
+    const obstacles = hand.filter(c => c.type === 'obstacle');
+    if(obstacles.length > 0){
+      // FÁCIL: only 30% chance to use obstacles proactively
+      // NORMAL: 70% chance
+      // DIFÍCIL: 100% when conditions fit
+      const threshold = diff === 'facil' ? 0.3 : (diff === 'normal' ? 0.7 : 1.0);
+      if(Math.random() < threshold){
+        let chosen = null;
+        if(game.player.hand.length >= 2){
+          chosen = obstacles.find(c => c.effect === 'force-discard') ||
+                   obstacles.find(c => c.effect === 'steal-hand');
+        }
+        if(!chosen){
+          chosen = obstacles.find(c => c.effect === 'skip-action');
+        }
+        if(!chosen){
+          chosen = obstacles.find(c => c.effect !== 'disrupt-prophecy' || game.player.prophecyArea.length > 0);
+        }
+        if(chosen){
+          game.opp.hand = game.opp.hand.filter(c => c.id !== chosen.id);
+          log(`La IA lanzó <strong>${chosen.name}</strong> contra ti.`,'opp');
+          applyObstacle(chosen, 'player');
+          discardCard(chosen);
+          acted = true;
+        }
+      }
+    }
+  }
+
+  // Priority 8: Renew market if nothing useful AND low on era matches — NORMAL+
+  if(!acted && diff !== 'facil' && game.market.length > 0){
+    // Check if market has anything useful (matching ongoing prophecy era or high-soul prophet)
+    const marketUseful = game.market.some(c => {
+      if(prophecy.length > 0 && (c.type === 'prophet' || c.type === 'event') && c.era === prophecy[0].era) return true;
+      if(c.type === 'prophet' && c.souls >= 4) return true;
+      return false;
+    });
+    // Also check if hand is stuck (no era with 2+ cards and prophecy empty)
+    const handStuck = prophecy.length === 0 && !['patriarcal','exodo','cautiverio','cristo','fin'].some(e => countEraInHand(e) >= 2);
+    if(!marketUseful && handStuck && Math.random() < 0.5){
+      log('La IA renovó el mercado.','opp');
+      game.market.forEach(c => discardCard(c));
+      game.market = [];
+      for(let i = 0; i < 3; i++){
+        const c = drawFromDeck();
+        if(!c) break;
+        game.market.push(c);
+      }
+      acted = true;
+    }
+  }
+
+  // Priority 9: Swap with market
+  if(!acted && game.market.length > 0){
+    let desired = null;
+    if(prophecy.length > 0){
+      desired = game.market.find(c => (c.type === 'prophet' || c.type === 'event') && c.era === prophecy[0].era);
+    }
+    if(!desired){
+      desired = [...game.market].filter(c => c.type === 'prophet').sort((a,b) => b.souls - a.souls)[0];
+    }
+    if(desired){
+      const giveUp = hand.filter(c => {
+        if(c.type === 'blessing' || c.type === 'obstacle') return false;
+        if(prophecy.length > 0 && c.era === prophecy[0].era) return false;
+        return true;
+      }).sort((a,b) => a.souls - b.souls)[0] || [...hand].sort((a,b) => a.souls - b.souls)[0];
+      if(giveUp){
+        game.opp.hand = game.opp.hand.filter(c => c.id !== giveUp.id);
+        game.market = game.market.filter(c => c.id !== desired.id);
+        game.opp.hand.push(desired);
+        game.market.push(giveUp);
+        log(`La IA intercambió <strong>${giveUp.name}</strong> por <strong>${desired.name}</strong>.`,'opp');
+        acted = true;
+      }
+    }
+  }
+
+  // Priority 10: Use useful blessings
+  if(!acted){
+    const useful = hand.find(c => c.type === 'blessing' && ['peek-pick','extra-action','retrieve-prophecy','recover'].includes(c.effect));
+    if(useful){
+      game.opp.hand = game.opp.hand.filter(c => c.id !== useful.id);
+      log(`La IA usó <strong>${useful.name}</strong>.`,'opp');
+      applyBlessing(useful, 'opp');
+      discardCard(useful);
+      acted = true;
+    }
+  }
+
+  // Priority 11 (anti-deadlock): Reset hand if completely stuck — DIFÍCIL
+  if(!acted && diff === 'dificil'){
+    const handStuck = prophecy.length === 0 && !['patriarcal','exodo','cautiverio','cristo','fin'].some(e => countEraInHand(e) >= 1);
+    if(handStuck && hand.length > 0){
+      log('La IA reinició su mano (estaba bloqueada).','opp');
+      hand.forEach(c => discardCard(c));
+      game.opp.hand = [];
+      for(let i = 0; i < 3; i++){
+        const c = drawFromDeck();
+        if(!c) break;
+        game.opp.hand.push(c);
+      }
+      acted = true;
+    }
+  }
+
+  // Priority 12: Discard prophecy if it's stuck (has 1-2 cards, no matches in hand, no matches in market) — DIFÍCIL
+  if(!acted && diff === 'dificil' && prophecy.length >= 1 && prophecy.length < 3){
+    const targetEra = prophecy[0].era;
+    const hasMatch = hand.some(c => (c.type === 'prophet' || c.type === 'event') && c.era === targetEra) ||
+                     game.market.some(c => (c.type === 'prophet' || c.type === 'event') && c.era === targetEra);
+    if(!hasMatch){
+      log('La IA descartó su profecía bloqueada.','opp');
+      prophecy.forEach(c => discardCard(c));
+      game.opp.prophecyArea = [];
+      acted = true;
+    }
+  }
+
+  render();
+  if(!acted) log('La IA pasó el turno.','opp');
+  setTimeout(() => oppFinishTurn(), 900);
+}
+
+function oppPlaceCard(card){
+  game.opp.hand = game.opp.hand.filter(c => c.id !== card.id);
+  game.opp.prophecyArea.push(card);
+  log(`La IA colocó <strong>${card.name}</strong> en su profecía.`,'opp');
+  if(game.opp.prophecyArea.length >= 3){
+    completeProphecy('opp');
+    game.opp.visionActive = false;
+    return;
+  }
+  // If vision active, AI places a second card if possible
+  if(game.opp.visionActive){
+    game.opp.visionActive = false;
+    const targetEra = game.opp.prophecyArea[0].era;
+    const second = game.opp.hand.find(c => (c.type === 'prophet' || c.type === 'event') && c.era === targetEra);
+    if(second){
+      game.opp.hand = game.opp.hand.filter(c => c.id !== second.id);
+      game.opp.prophecyArea.push(second);
+      log(`Visión Profética: La IA colocó también <strong>${second.name}</strong>.`,'opp');
+      if(game.opp.prophecyArea.length >= 3){ completeProphecy('opp'); }
+    }
+  }
+}
+
+function oppFinishTurn(){
+  if(game.gameOver) return;
+
+  // Auto-refill AI hand to 3
+  while(game.opp.hand.length < game.HAND_LIMIT){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.opp.hand.push(c);
+  }
+
+  // Auto-refill market to exactly 3 (never exceed)
+  while(game.market.length < 3){
+    const c = drawFromDeck();
+    if(!c) break;
+    game.market.push(c);
+  }
+  while(game.market.length > 3){ discardCard(game.market.pop()); }
+
+  game.handLimitBonus = 0;
+  game.opp.visionActive = false; // vision doesn't persist
+  game.turnNumber++;
+  startPlayerTurn();
+}
+
+// ─── END GAME ──────────────────────────────────────────────────
+function endGame(winner){
+  game.gameOver = true;
+  stopTurnTimer();
+  const isPlayer = winner === 'player';
+  const p = game.player; const o = game.opp;
+  const backdrop = document.createElement('div');
+  backdrop.className = 'end-backdrop';
+  backdrop.innerHTML = `
+    <div class="end-modal">
+      <h2>${isPlayer ? '✦ ¡Victoria!' : 'La IA ha vencido'}<span class="sub">${isPlayer ? 'Profecía cumplida' : 'Otra vez será'}</span></h2>
+      <p>${isPlayer ? 'Completaste 2 profecías y alcanzaste la meta. Tu estrategia prevaleció.' : 'La IA completó 2 profecías antes que tú.'}</p>
+      <div class="modal-stats">
+        <div>
+          <div class="modal-stat-label">Tus profecías</div>
+          <div class="modal-stat-num">${p.completedProphecies.length}</div>
+          <div class="modal-stat-label" style="margin-top:4px">Tus almas</div>
+          <div class="modal-stat-num">${p.souls}</div>
+        </div>
+        <div>
+          <div class="modal-stat-label">IA profecías</div>
+          <div class="modal-stat-num">${o.completedProphecies.length}</div>
+          <div class="modal-stat-label" style="margin-top:4px">IA almas</div>
+          <div class="modal-stat-num">${o.souls}</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="modal-new-end">Jugar de nuevo</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById('modal-new-end').addEventListener('click', () => { backdrop.remove(); resetAndShowStart(); });
+  log(`Fin de partida. Ganador: <strong>${isPlayer ? 'Tú' : 'IA'}</strong>.`,'event');
+}
+
+// ─── RULES MODAL ───────────────────────────────────────────────
+function showRulesModal(){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'end-backdrop';
+  backdrop.style.zIndex = '1050';
+  backdrop.innerHTML = `
+    <div class="end-modal" style="max-width:680px;text-align:left;max-height:92vh;overflow-y:auto;padding:1.8rem 2rem">
+      <h2 style="text-align:center;margin-bottom:0.2rem">Manual de Juego<span class="sub">Profeta Express · Alpha</span></h2>
+
+      <div style="font-size:0.82rem;line-height:1.65;color:var(--text-main)">
+
+        <!-- OBJETIVO -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">🎯 Objetivo</div>
+        <p style="margin-bottom:0.5rem">Completa profecías bíblicas antes que tu rival. Cada profecía requiere <strong>3 cartas de la misma Era</strong>. Gana el primero en alcanzar la meta de profecías que elegiste al inicio (1, 2 o 3 según la duración deseada).</p>
+
+        <!-- COMPONENTES -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">🃏 El mazo (28 cartas)</div>
+        <p style="margin-bottom:0.4rem">El mazo tiene tres tipos de cartas:</p>
+        <ul style="padding-left:1.2rem;margin-bottom:0.5rem;display:flex;flex-direction:column;gap:0.3rem">
+          <li><strong style="color:var(--gold-light)">Profetas y Eventos (20 cartas)</strong> — Son las cartas que usas para construir profecías. Cada una pertenece a una Era y tiene un valor en Almas.</li>
+          <li><strong style="color:#9CD9A8">Bendiciones (7 cartas)</strong> — Cartas especiales que te dan ventajas: revelar la mano rival, acciones extra, recuperar cartas, etc.</li>
+          <li><strong style="color:#E88A8A">Obstáculos (4 cartas)</strong> — Armas que lanzas contra la IA: forzar descarte, robar cartas, interrumpir su profecía.</li>
+        </ul>
+
+        <!-- ERAS -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">📜 Las 5 Eras</div>
+        <p style="margin-bottom:0.4rem">Para completar una profecía, las 3 cartas deben ser de la <strong>misma Era</strong>. No se pueden mezclar eras.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem 0.8rem;margin-bottom:0.5rem;font-size:0.78rem">
+          <div><span style="color:var(--era-patriarcal-c)">●</span> <strong>Patriarcal</strong> — Noé, Abraham (~2000 a.C.)</div>
+          <div><span style="color:var(--era-exodo-c)">●</span> <strong>Éxodo</strong> — Moisés, Josué (~1500 a.C.)</div>
+          <div><span style="color:var(--era-cautiverio-c)">●</span> <strong>Cautiverio</strong> — Daniel, Ezequiel (~600 a.C.)</div>
+          <div><span style="color:var(--era-cristo-c)">●</span> <strong>Cristo</strong> — Jesús, Juan Bautista (~30 d.C.)</div>
+          <div><span style="color:var(--era-fin-c)">●</span> <strong>Fin del Tiempo</strong> — Apóstol Juan, Elena White (1798–futuro)</div>
+        </div>
+
+        <!-- INICIO -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">⚔ Inicio de partida</div>
+        <ol style="padding-left:1.2rem;margin-bottom:0.5rem;display:flex;flex-direction:column;gap:0.3rem">
+          <li>Elige la <strong>meta</strong> (1, 2 o 3 profecías) y la <strong>dificultad de la IA</strong>.</li>
+          <li>Ambos jugadores sacan una carta del mazo. La carta de la <strong>Era más antigua</strong> gana — ese jugador inicia.</li>
+          <li>Cada jugador recibe <strong>3 cartas</strong> en mano. El mercado se llena con 3 cartas boca arriba.</li>
+        </ol>
+
+        <!-- TURNO -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">🔄 Tu turno — 1 acción (elige una)</div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.5rem">
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Colocar carta</strong> — Pon un Profeta o Evento en tu área de profecía. Todas las cartas de una profecía deben ser de la misma Era. Al colocar la 3ª carta, la profecía se completa automáticamente.</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Intercambiar con el mercado</strong> — Da una carta de tu mano y toma una del mercado. Clic en tu carta → clic en la del mercado.</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Robar del mazo</strong> — Toma la carta superior del mazo (solo si tienes menos de 3 cartas).</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Usar bendición</strong> — Juega una carta de Bendición de tu mano para activar su efecto.</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Lanzar obstáculo</strong> — Juega una carta de Obstáculo contra la IA para perjudicarla.</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Retirar de profecía</strong> — Devuelve una carta de tu profecía en construcción a tu mano (útil si necesitas cambiar de era).</div>
+          <div style="padding:0.35rem 0.6rem;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dark);border-radius:0 4px 4px 0"><strong>Descartar carta</strong> — Descarta una carta de tu mano al pozo de descarte.</div>
+        </div>
+
+        <!-- BOTONES EXTRA -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">⚙ Acciones de emergencia (1 acción cada una)</div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.5rem;font-size:0.8rem">
+          <div><strong>☐ Selección múltiple</strong> — Selecciona 1–3 cartas de tu mano. Luego elige intercambiarlas con cartas del mercado que tú eliges, o descartarlas y robar la misma cantidad del mazo.</div>
+          <div><strong>↻ Renovar mercado</strong> — Las 3 cartas del mercado van al descarte y se reponen con nuevas.</div>
+          <div><strong>↻ Reiniciar mano</strong> — Descarta toda tu mano y roba 3 cartas nuevas. Útil cuando ninguna de tus cartas sirve.</div>
+          <div><strong>✗ Descartar profecía</strong> — Descarta todas las cartas de tu profecía en construcción. Úsalo si quedaste bloqueado con una era equivocada.</div>
+        </div>
+
+        <!-- FIN DE TURNO -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">✅ Fin de turno</div>
+        <p style="margin-bottom:0.5rem">Al presionar <strong>"Terminar turno"</strong>, tu mano se rellena automáticamente hasta 3 cartas y el mercado también se completa. Luego juega la IA.</p>
+
+        <!-- TIMER -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">⏱ Temporizador de turno</div>
+        <div style="padding:0.5rem 0.7rem;background:rgba(201,168,76,0.07);border-left:3px solid var(--gold-dark);border-radius:0 5px 5px 0;margin-bottom:0.5rem;font-size:0.82rem">
+          Cada turno dispone de <strong>60 segundos</strong> para realizar tu acción. El contador aparece al lado del texto <em>"Tu turno"</em> en la barra inferior. Cuando quedan <strong>10 segundos</strong>, el número se vuelve <span style="color:#FF4444;font-weight:700">rojo y pulsante</span> como alerta urgente. Si el tiempo se agota sin que hayas actuado, el turno se pierde automáticamente y pasa a la IA. Los modales interactivos (como <em>Tiempo de Angustia</em>) pausan el contador mientras están abiertos.
+        </div>
+
+        <!-- BENDICIONES -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">✦ Guía de bendiciones</div>
+        <div style="display:flex;flex-direction:column;gap:0.25rem;margin-bottom:0.5rem;font-size:0.79rem">
+          <div><strong style="color:#9CD9A8">Guía del Espíritu</strong> — Mira las 3 próximas cartas del mazo y quédate con 1.</div>
+          <div><strong style="color:#9CD9A8">Lluvia Temprana</strong> — Ganas 2 acciones extra este turno (en total puedes hacer 3 jugadas).</div>
+          <div><strong style="color:#9CD9A8">Fe Firme</strong> — Recupera 1 carta de tu profecía en construcción a tu mano.</div>
+          <div><strong style="color:#9CD9A8">Sabiduría</strong> — Revela visualmente todas las cartas de la mano de la IA.</div>
+          <div><strong style="color:#9CD9A8">Protección Divina</strong> — Activa un escudo que anula el próximo obstáculo que te lancen.</div>
+          <div><strong style="color:#9CD9A8">Oración</strong> — Recupera la última carta del descarte a tu mano.</div>
+          <div><strong style="color:#9CD9A8">Visión Profética</strong> — Coloca hasta 2 cartas de la misma era directamente en tu profecía (1 acción).</div>
+        </div>
+
+        <!-- OBSTÁCULOS -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">⚡ Guía de obstáculos</div>
+        <div style="display:flex;flex-direction:column;gap:0.25rem;margin-bottom:0.5rem;font-size:0.79rem">
+          <div><strong style="color:#E88A8A">Tiempo de Angustia</strong> — Debes descartar 1 carta de tu mano (tú eliges cuál). La IA no sabe qué descartaste.</div>
+          <div><strong style="color:#E88A8A">Gran Apostasía</strong> — Roba 1 carta de la mano de la IA. Aparecen boca abajo — tú eliges cuál tomar sin saber qué es.</div>
+          <div><strong style="color:#E88A8A">La Persecución</strong> — La IA pierde su próximo turno completo.</div>
+          <div><strong style="color:#E88A8A">Confusión de Babel</strong> — Devuelve 1 carta de la profecía de la IA al mazo.</div>
+        </div>
+
+        <!-- GANAR -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">🏆 Cómo ganar</div>
+        <p style="margin-bottom:0.3rem">El primero en completar la cantidad de profecías elegida al inicio <strong>(1, 2 o 3)</strong> gana la partida. Si ambos completan la misma cantidad en el mismo rango de turnos, gana quien tenga más <strong>Almas</strong> acumuladas. Las almas son la suma de los valores de las cartas en tus profecías completadas.</p>
+
+        <!-- TIPS -->
+        <div style="margin:1.2rem 0 0.5rem;font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark)">💡 Consejos para empezar</div>
+        <ul style="padding-left:1.2rem;margin-bottom:0.8rem;display:flex;flex-direction:column;gap:0.3rem;font-size:0.79rem">
+          <li>Enfócate en una Era a la vez. Es mejor completar 1 profecía con 3 cartas de la misma era que tener cartas dispersas de 3 eras distintas.</li>
+          <li>El mercado es tu aliado. Si tu mano no tiene cartas útiles, intercambia con el mercado antes de descartar.</li>
+          <li>Guarda los obstáculos para el momento justo. Lanzar "Confusión de Babel" cuando la IA tiene 2 cartas en su profecía puede cambiar el juego.</li>
+          <li>La IA en dificultad Normal ya juega con estrategia. En Difícil es agresiva y usará obstáculos activamente.</li>
+        </ul>
+
+      </div>
+      <button class="btn btn-primary" id="modal-close-rules" style="display:block;margin:0 auto">Entendido</button>
+    </div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById('modal-close-rules').addEventListener('click', () => backdrop.remove());
+  backdrop.addEventListener('click', (e) => { if(e.target === backdrop) backdrop.remove(); });
+}
+
+// ─── INIT / START ──────────────────────────────────────────────
+function resetAndShowStart(){
+  closeCardZoom();
+  pendingSwapFromHand = null;
+  pendingSwapFromMarket = null;
+
+  // Clear state
+  game.deck = shuffle(CARDS_DATA.map(c => ({...c})));
+  game.discard = [];
+  game.market = [];
+  game.player = {hand:[],prophecyArea:[],completedProphecies:[],souls:0,actionsRemaining:1,shield:false,revealedOpponent:false,skipNextAction:false,visionActive:false};
+  game.opp = {hand:[],prophecyArea:[],completedProphecies:[],souls:0,shield:false,skipNextAction:false,visionActive:false};
+  game.selectionMode = false;
+  game.selectedCards = [];
+  game.currentTurn = 'player';
+  game.gameOver = false;
+  game.started = false;
+  game.turnNumber = 1;
+  game.handLimitBonus = 0;
+
+  document.getElementById('log').innerHTML = '';
+  render();
+
+  // Show start overlay
+  const overlay = document.getElementById('start-overlay');
+  overlay.classList.remove('hiding');
+  overlay.style.display = 'flex';
+  overlay.style.opacity = '';
+}
+
+async function startGameWithAnimation(starter = 'player'){
+  const overlay = document.getElementById('start-overlay');
+  overlay.classList.add('hiding');
+  setTimeout(() => { overlay.style.display = 'none'; }, 500);
+
+  log('✦ Nueva partida iniciada','event');
+  log('Repartiendo cartas...','system');
+
+  await sleep(400);
+
+  const dealOrder = [
+    {who:'player'}, {who:'opp'}, {who:'market'},
+    {who:'player'}, {who:'opp'}, {who:'market'},
+    {who:'player'}, {who:'opp'}, {who:'market'},
+  ];
+
+  for(const step of dealOrder){
+    const card = game.deck.pop();
+    if(!card) break;
+    if(step.who === 'player') game.player.hand.push(card);
+    else if(step.who === 'opp') game.opp.hand.push(card);
+    else game.market.push(card);
+    render();
+    await sleep(160);
+  }
+
+  game.started = true;
+  game.currentTurn = starter;
+  if(starter === 'player'){
+    game.player.actionsRemaining = 1;
+    log('✦ Tu turno. Tienes 1 acción. Roba, coloca, usa bendición, lanza obstáculo o intercambia.','player');
+    startTurnTimer();
+  } else {
+    log('✦ La IA inicia por tener la carta más antigua.','opp');
+  }
+  render();
+
+  if(starter === 'opp'){
+    setTimeout(() => runOppTurn(), 900);
+  }
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+// ─── EVENTS ────────────────────────────────────────────────────
+document.getElementById('btn-draw').addEventListener('click', playerDraw);
+document.getElementById('btn-end').addEventListener('click', playerEndTurn);
+document.getElementById('btn-renew-market').addEventListener('click', playerRenewMarket);
+document.getElementById('btn-reset-hand').addEventListener('click', playerResetHand);
+document.getElementById('btn-discard-prophecy').addEventListener('click', playerDiscardProphecy);
+document.getElementById('btn-select-multi').addEventListener('click', () => {
+  if(game.selectionMode){ exitSelectionMode(); }
+  else { enterSelectionMode(); }
+});
+
+// Selection bar buttons
+document.getElementById('sel-btn-market').addEventListener('click', multiSwapWithMarket);
+document.getElementById('sel-btn-deck').addEventListener('click', multiSwapWithDeck);
+document.getElementById('sel-btn-cancel').addEventListener('click', exitSelectionMode);
+
+// Vision modal buttons
+document.getElementById('vision-confirm').addEventListener('click', confirmVision);
+document.getElementById('vision-cancel').addEventListener('click', () => {
+  document.getElementById('vision-backdrop').classList.remove('visible');
+  visionSelected = [];
+  // Refund the card to hand if cancelled (it was already removed by playerUseBlessing)
+  // Actually the card was discarded already — log and don't refund action
+  log('Visión Profética cancelada. La acción no se consumió.','system');
+  render();
+});
+
+// Goal selector buttons in coin modal
+document.querySelectorAll('.coin-goal-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.coin-goal-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    game.propheciesToWin = parseInt(btn.dataset.n);
+    const goalBadge = document.getElementById('goal-badge');
+    if(goalBadge){
+      const n = game.propheciesToWin;
+      goalBadge.textContent = `Meta: ${n} profecía${n>1?'s':''} para ganar`;
+    }
+  });
+});
+
+// Difficulty switch
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    game.difficulty = btn.dataset.diff;
+    const diffName = {facil:'Fácil', normal:'Normal', dificil:'Difícil'}[game.difficulty];
+    log(`Dificultad IA: <strong>${diffName}</strong>`,'system');
+  });
+});
+document.getElementById('btn-new').addEventListener('click', () => {
+  if(!game.started || confirm('¿Iniciar nueva partida? Se perderá el progreso actual.')){
+    resetAndShowStart();
+  }
+});
+
+// ─── LIBRARY / CARD BROWSER ────────────────────────────────────────────────
+let currentLibFilter = 'patriarcal';
+
+function openLibrary(){
+  document.getElementById('library-backdrop').classList.add('visible');
+  renderLibrary(currentLibFilter);
+}
+function closeLibrary(){
+  document.getElementById('library-backdrop').classList.remove('visible');
+}
+function setLibTab(el, filter){
+  document.querySelectorAll('.lib-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentLibFilter = filter;
+  renderLibrary(filter);
+}
+function renderLibrary(filter){
+  const grid = document.getElementById('library-grid');
+  grid.innerHTML = '';
+  let cards;
+  if(filter === 'blessing'){
+    cards = CARDS_DATA.filter(c => c.type === 'blessing');
+  } else if(filter === 'obstacle'){
+    cards = CARDS_DATA.filter(c => c.type === 'obstacle');
+  } else {
+    cards = CARDS_DATA.filter(c => c.era === filter);
+  }
+  if(!cards.length){ grid.innerHTML = '<p style="color:var(--text-muted);font-family:Lora,serif;font-style:italic">Sin cartas en esta categoría.</p>'; return; }
+  
+  // Section label
+  const label = document.createElement('div');
+  label.className = 'lib-section-title';
+  const counts = {prophet:0, event:0, blessing:0, obstacle:0};
+  cards.forEach(c => { if(counts[c.type]!==undefined) counts[c.type]++; });
+  const parts = [];
+  if(counts.prophet) parts.push(`${counts.prophet} profeta${counts.prophet>1?'s':''}`);
+  if(counts.event) parts.push(`${counts.event} evento${counts.event>1?'s':''}`);
+  if(counts.blessing) parts.push(`${counts.blessing} bendición${counts.blessing>1?'es':''}`);
+  if(counts.obstacle) parts.push(`${counts.obstacle} obstáculo${counts.obstacle>1?'s':''}`);
+  label.textContent = parts.join(' · ') + ' — ' + cards.length + ' cartas en total';
+  grid.appendChild(label);
+
+  cards.forEach(card => {
+    const wrap = document.createElement('div');
+    // Use existing renderCard but wrapped (no click action in library)
+    const cardEl = renderCard(card, { onClick: null, compact: false });
+    wrap.appendChild(cardEl);
+    grid.appendChild(wrap);
+  });
+}
+
+document.getElementById('btn-rules').addEventListener('click', showRulesModal);
+
+// ─── CREDITS MODAL ─────────────────────────────────────────────
+function openCredits(){ document.getElementById('credits-backdrop').classList.add('visible'); }
+function closeCredits(){ document.getElementById('credits-backdrop').classList.remove('visible'); }
+document.getElementById('btn-library').addEventListener('click', openLibrary);
+document.getElementById('btn-credits').addEventListener('click', openCredits);
+document.getElementById('credits-close-x').addEventListener('click', closeCredits);
+document.getElementById('credits-close-btn').addEventListener('click', closeCredits);
+document.getElementById('credits-backdrop').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('credits-backdrop')) closeCredits();
+});
+document.getElementById('library-backdrop').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('library-backdrop')) closeLibrary();
+});
+
+// Start button → coin flip → deal
+function goToCoinFlip(){
+  const overlay = document.getElementById('start-overlay');
+  overlay.classList.add('hiding');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    openCoinFlip();
+  }, 500);
+}
+document.getElementById('start-btn').addEventListener('click', goToCoinFlip);
+document.getElementById('start-deck').addEventListener('click', goToCoinFlip);
+
+// Reveal close
+document.getElementById('reveal-close').addEventListener('click', () => {
+  document.getElementById('reveal-backdrop').classList.remove('visible');
+});
+
+// ESC closes zoom + modals
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    if(zoomedCardEl) closeCardZoom();
+    document.getElementById('reveal-backdrop').classList.remove('visible');
+    pendingSwapFromHand = null;
+    pendingSwapFromMarket = null;
+    render();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO ENGINE — Profeta Express v6
+// ═══════════════════════════════════════════════════════════════
+const SFX = {
+  ctx: null,
+  musicGain: null,
+  sfxGain: null,
+  musicMuted: false,
+  sfxMuted: false,
+  musicVolume: 0.45,
+  sfxVolume: 0.4,
+  // Music playlist: alternates v1 → v2 → v1 → v2...
+  musicPlaylist: ['mus01v1', 'mus01v2'],
+  musicIndex: 0,
+  currentMusicSource: null,
+  currentMusicBuffer: null,
+  musicStartTime: 0,
+  musicPauseOffset: 0,
+  initialized: false,
+  buffers: {},
+
+  async init(){
+    if(this.initialized) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.musicGain = this.ctx.createGain();
+      this.sfxGain = this.ctx.createGain();
+      this.musicGain.connect(this.ctx.destination);
+      this.sfxGain.connect(this.ctx.destination);
+      this.musicGain.gain.value = this.musicVolume;
+      this.sfxGain.gain.value = this.sfxVolume;
+      this.initialized = true;
+      // Preload all available audio
+      await this.preloadAll();
+    } catch(e) {
+      console.warn('AudioContext failed:', e);
+    }
+  },
+
+  async preloadAll(){
+    const keys = Object.keys(AUDIO_DATA);
+    for(const key of keys){
+      await this.loadBuffer(key, AUDIO_DATA[key]);
+    }
+    console.log(`Audio: ${keys.length} sounds loaded`);
+  },
+
+  async loadBuffer(key, dataUrl){
+    try {
+      const res = await fetch(dataUrl);
+      const arrayBuf = await res.arrayBuffer();
+      this.buffers[key] = await this.ctx.decodeAudioData(arrayBuf);
+    } catch(e) {
+      console.warn('Failed to load audio:', key, e);
+    }
+  },
+
+  // ── MUSIC (alternating playlist) ──────────────────────────────
+  playMusic(key){
+    if(!this.initialized || !this.ctx) return;
+    this.stopMusic();
+    const buf = this.buffers[key];
+    if(!buf){ console.warn('Music not loaded:', key); return; }
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = false; // we handle looping manually via onended
+    src.connect(this.musicGain);
+    src.start(0);
+    this.currentMusicSource = src;
+    this.musicStartTime = this.ctx.currentTime;
+
+    // On ended → play next in playlist
+    src.onended = () => {
+      if(this.currentMusicSource === src){
+        this.musicIndex = (this.musicIndex + 1) % this.musicPlaylist.length;
+        this.playMusic(this.musicPlaylist[this.musicIndex]);
+      }
+    };
+
+    this.musicGain.gain.value = this.musicMuted ? 0 : this.musicVolume;
+  },
+
+  stopMusic(){
+    if(this.currentMusicSource){
+      try { this.currentMusicSource.stop(); } catch(e){}
+      this.currentMusicSource = null;
+    }
+  },
+
+  startGameMusic(){
+    this.musicIndex = 0;
+    this.playMusic(this.musicPlaylist[0]);
+  },
+
+  startIntroMusic(){
+    this.stopMusic();
+    const buf = this.buffers['mus02'];
+    if(!buf || !this.initialized) return;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true; // intro loops
+    src.connect(this.musicGain);
+    src.start(0);
+    this.currentMusicSource = src;
+    this.musicGain.gain.value = this.musicMuted ? 0 : this.musicVolume;
+  },
+
+  // ── SFX ─────────────────────────────────────────────────────
+  play(key, volumeMult = 1){
+    if(!this.initialized || !this.ctx || this.sfxMuted) return;
+    const buf = this.buffers[key];
+    if(!buf) return;
+    // Resume context if suspended (browser autoplay policy)
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const gainNode = this.ctx.createGain();
+    gainNode.gain.value = this.sfxVolume * volumeMult;
+    src.connect(gainNode);
+    gainNode.connect(this.sfxGain);
+    src.start(0);
+    return src;
+  },
+
+  // ── DUCKING: lower music briefly during events ───────────────
+  duck(durationMs = 2000){
+    if(!this.initialized || !this.musicGain) return;
+    const target = this.musicMuted ? 0 : this.musicVolume * 0.25;
+    const current = this.musicMuted ? 0 : this.musicVolume;
+    this.musicGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.1);
+    setTimeout(() => {
+      if(this.musicGain)
+        this.musicGain.gain.setTargetAtTime(current, this.ctx.currentTime, 0.4);
+    }, durationMs);
+  },
+
+  // ── CONTROLS ─────────────────────────────────────────────────
+  toggleMusic(){
+    this.musicMuted = !this.musicMuted;
+    if(this.musicGain){
+      this.musicGain.gain.setTargetAtTime(
+        this.musicMuted ? 0 : this.musicVolume,
+        this.ctx.currentTime, 0.2
+      );
+    }
+    this.updateUI();
+  },
+
+  toggleSfx(){
+    this.sfxMuted = !this.sfxMuted;
+    this.updateUI();
+  },
+
+  setMusicVolume(v){
+    this.musicVolume = v;
+    if(this.musicGain && !this.musicMuted){
+      this.musicGain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.1);
+    }
+  },
+
+  updateUI(){
+    // Sync audio settings modal if open
+    syncAudioSettingsUI && syncAudioSettingsUI();
+  },
+
+  // ── SAVE / RESTORE PREFS ─────────────────────────────────────
+  savePrefs(){
+    try {
+      localStorage.setItem('profeta_music_muted', this.musicMuted);
+      localStorage.setItem('profeta_sfx_muted',   this.sfxMuted);
+      localStorage.setItem('profeta_music_vol',    this.musicVolume);
+    } catch(e){}
+  },
+  loadPrefs(){
+    try {
+      const mm = localStorage.getItem('profeta_music_muted');
+      const sm = localStorage.getItem('profeta_sfx_muted');
+      const mv = localStorage.getItem('profeta_music_vol');
+      if(mm !== null) this.musicMuted = mm === 'true';
+      if(sm !== null) this.sfxMuted   = sm === 'true';
+      if(mv !== null) this.musicVolume = parseFloat(mv);
+      const sv = localStorage.getItem('profeta_sfx_vol');
+      if(sv !== null) this.sfxVolume = parseFloat(sv);
+      // Sync settings modal sliders
+      syncAudioSettingsUI();
+      this.updateUI();
+    } catch(e){}
+  },
+};
+
+// ── Audio Settings Modal ──────────────────────────────────────
+function syncAudioSettingsUI(){
+  const mVol = document.getElementById('as-music-vol');
+  const sVol = document.getElementById('as-sfx-vol');
+  const mVal = document.getElementById('as-music-val');
+  const sVal = document.getElementById('as-sfx-val');
+  const mBtn = document.getElementById('as-toggle-music');
+  const sBtn = document.getElementById('as-toggle-sfx');
+  if(mVol){ mVol.value = SFX.musicVolume; updateSliderGradient(mVol, SFX.musicVolume); }
+  if(sVol){ sVol.value = SFX.sfxVolume;   updateSliderGradient(sVol, SFX.sfxVolume); }
+  if(mVal) mVal.textContent = Math.round(SFX.musicVolume * 100) + '%';
+  if(sVal) sVal.textContent = Math.round(SFX.sfxVolume   * 100) + '%';
+  if(mBtn) mBtn.classList.toggle('muted', SFX.musicMuted);
+  if(sBtn) sBtn.classList.toggle('muted', SFX.sfxMuted);
+  if(mBtn) mBtn.textContent = SFX.musicMuted ? '🔇' : '🎵';
+  if(sBtn) sBtn.textContent = SFX.sfxMuted   ? '🔕' : '🔊';
+}
+
+function updateSliderGradient(slider, v){
+  const pct = v * 100;
+  slider.style.background = `linear-gradient(to right, var(--gold) 0%, var(--gold) ${pct}%, rgba(201,168,76,0.2) ${pct}%)`;
+}
+
+document.getElementById('btn-audio-settings').addEventListener('click', () => {
+  syncAudioSettingsUI();
+  document.getElementById('audio-settings-backdrop').classList.add('visible');
+});
+document.getElementById('as-close').addEventListener('click', () => {
+  document.getElementById('audio-settings-backdrop').classList.remove('visible');
+  SFX.savePrefs();
+});
+document.getElementById('as-toggle-music').addEventListener('click', () => {
+  SFX.toggleMusic(); syncAudioSettingsUI(); SFX.savePrefs();
+});
+document.getElementById('as-toggle-sfx').addEventListener('click', () => {
+  SFX.toggleSfx(); syncAudioSettingsUI(); SFX.savePrefs();
+});
+document.getElementById('as-music-vol').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  SFX.setMusicVolume(v);
+  if(SFX.musicMuted){ SFX.musicMuted = false; }
+  updateSliderGradient(e.target, v);
+  document.getElementById('as-music-val').textContent = Math.round(v * 100) + '%';
+  SFX.savePrefs();
+});
+document.getElementById('as-sfx-vol').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  SFX.sfxVolume = v;
+  if(SFX.sfxGain && !SFX.sfxMuted) SFX.sfxGain.gain.setTargetAtTime(v, SFX.ctx.currentTime, 0.1);
+  if(SFX.sfxMuted){ SFX.sfxMuted = false; }
+  updateSliderGradient(e.target, v);
+  document.getElementById('as-sfx-val').textContent = Math.round(v * 100) + '%';
+  SFX.savePrefs();
+});
+// Extend savePrefs to include sfx volume
+const _origSavePrefs = SFX.savePrefs.bind(SFX);
+SFX.savePrefs = function(){
+  _origSavePrefs();
+  try { localStorage.setItem('profeta_sfx_vol', this.sfxVolume); } catch(e){}
+};
+
+// ── Wire audio control buttons ────────────────────────────────
+
+// ── init audio on first user interaction (autoplay policy) ────
+let audioInitialized = false;
+async function ensureAudio(){
+  if(audioInitialized) return;
+  audioInitialized = true;
+  await SFX.init();
+  SFX.loadPrefs();
+  SFX.startIntroMusic();
+}
+
+const _startOverlay = document.getElementById('start-overlay');
+if(_startOverlay){
+  _startOverlay.addEventListener('click', () => ensureAudio(), {once:true});
+}
+document.getElementById('start-btn')?.addEventListener('click', () => ensureAudio());
+document.getElementById('start-deck')?.addEventListener('click', () => ensureAudio());
+
+// ── Patch goToCoinFlip ────────────────────────────────────────
+const _origGoToCoinFlip = goToCoinFlip;
+goToCoinFlip = function(){
+  ensureAudio();
+  _origGoToCoinFlip();
+};
+
+// ── Patch startGameWithAnimation: intro → game music ─────────
+const _origStartGame = startGameWithAnimation;
+startGameWithAnimation = async function(starter){
+  SFX.stopMusic();
+  await _origStartGame(starter);
+  SFX.startGameMusic();
+};
+
+// ── Patch afterCoinFlip: reparto de cartas ────────────────────
+const _origAfterCoin = afterCoinFlip;
+afterCoinFlip = function(starter){
+  setTimeout(() => SFX.play('card04'), 200); // barajeo-reparto
+  _origAfterCoin(starter);
+};
+
+// ── Patch completeProphecy ────────────────────────────────────
+const _origCompleteProphecy = completeProphecy;
+completeProphecy = function(who){
+  if(who === 'player'){
+    SFX.duck(3500);
+    SFX.play('evt04'); // profecía completada jugador
+  } else {
+    SFX.duck(3000);
+    SFX.play('evt05'); // profecía completada IA
+  }
+  _origCompleteProphecy(who);
+};
+
+// ── Patch endGame ─────────────────────────────────────────────
+const _origEndGame = endGame;
+endGame = function(winner){
+  SFX.stopMusic();
+  if(winner === 'player'){
+    SFX.play('mus03', 1.1); // victoria jugador
+  } else {
+    SFX.play('evt08', 1.0); // derrota / IA gana
+  }
+  _origEndGame(winner);
+};
+
+// ── Patch resetAndShowStart ───────────────────────────────────
+const _origReset = resetAndShowStart;
+resetAndShowStart = function(){
+  _origReset();
+  setTimeout(() => {
+    if(SFX.initialized) SFX.startIntroMusic();
+  }, 300);
+};
+
+// ── Patch playerPlace: colocar carta en profecía ──────────────
+const _origPlayerPlace = playerPlace;
+playerPlace = function(card){
+  SFX.play('card02'); // CARD_02-COLOCAR-EN-PROFECIA
+  _origPlayerPlace(card);
+};
+
+// ── Patch drawCard: robar carta ───────────────────────────────
+const _origDrawCard = playerDrawCard;
+if(typeof _origDrawCard === 'function'){
+  playerDrawCard = function(){
+    SFX.play('card01'); // CARD_01 = mismo que card02
+    _origDrawCard();
+  };
+}
+
+// ── Patch playerDiscardFromHand: desechar carta ───────────────
+const _origDiscard = playerDiscardFromHand;
+playerDiscardFromHand = function(card){
+  SFX.play('card05'); // CARD_05-DESECHAR-CARTA
+  _origDiscard(card);
+};
+
+// ── Patch multi-swap / intercambio de cartas ──────────────────
+const _origConfirmSwap = confirmMultiSwap;
+if(typeof _origConfirmSwap === 'function'){
+  confirmMultiSwap = function(){
+    SFX.play('card06'); // CARD_06-INTERCAMBIO
+    _origConfirmSwap();
+  };
+}
+
+// ── Patch renewMarket: renovar mazo/mercado ───────────────────
+const _origRenewMkt = playerRenewMarket;
+if(typeof _origRenewMkt === 'function'){
+  playerRenewMarket = function(){
+    SFX.play('card08'); // CARD_08-RENOVAR-MAZO
+    _origRenewMkt();
+  };
+}
+
+// ── Patch resetHand: renovar mano (reutiliza card08) ─────────
+const _origResetHand = playerResetHand;
+if(typeof _origResetHand === 'function'){
+  playerResetHand = function(){
+    SFX.play('card08');
+    _origResetHand();
+  };
+}
+
+// ── UI sounds: hover y clic de botones ────────────────────────
+document.querySelectorAll('.btn, .action-btn').forEach(btn => {
+  btn.addEventListener('mouseenter', () => SFX.play('ui01', 0.5));
+  btn.addEventListener('click',      () => SFX.play('ui02', 0.7));
+});
+
+// ── Hover sobre cartas de la mano ─────────────────────────────
+document.addEventListener('mouseover', (e) => {
+  const card = e.target.closest('.game-card');
+  if(card && card.closest('#player-hand')){
+    SFX.play('card03', 0.4); // CARD_03-HOVER-CARTA
+  }
+});
+
+// ── Countdown timer sound (últimos 10 segundos) ───────────────
+let countdownSoundPlayed = false;
+const _origStartTimer = startTurnTimer;
+startTurnTimer = function(){
+  countdownSoundPlayed = false;
+  _origStartTimer();
+};
+const _origStopTimer = stopTurnTimer;
+stopTurnTimer = function(){
+  countdownSoundPlayed = false;
+  _origStopTimer();
+};
+// Hook into timer tick — patch onTurnTimerExpired area
+const _origTimerExpired = onTurnTimerExpired;
+onTurnTimerExpired = function(){
+  countdownSoundPlayed = false;
+  _origTimerExpired();
+};
+// Patch the timer interval to trigger countdown sound at 10s
+const _origTurnTimerInterval = setInterval;
+(function patchCountdown(){
+  const origSetInterval = window.setInterval;
+  window.setInterval = function(fn, ms){
+    if(ms === 1000 && typeof fn === 'function'){
+      const wrapped = function(){
+        fn();
+        if(typeof turnTimerRemaining !== 'undefined' &&
+           turnTimerRemaining === 10 && !countdownSoundPlayed){
+          countdownSoundPlayed = true;
+          SFX.play('countdown', 0.8);
+        }
+      };
+      return origSetInterval(wrapped, ms);
+    }
+    return origSetInterval(fn, ms);
+  };
+})();
+
+// ── Start ─────────────────────────────────────────────────────
+resetAndShowStart();
+</script>
+
+</body>
+</html>
